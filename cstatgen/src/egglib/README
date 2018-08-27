@@ -1,0 +1,20 @@
+egglib-py is a Python package embedding the egglib-cpp C++ library for
+edition, management, simulation and analysis of (mainly) sequence data
+as well as integrated task. egglib-py contains a directly executable
+script implemented such tasks. egglib-py is a part of EggLib the
+C++/Python library and application package.
+
+EggLib is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your
+option) any later version.
+
+EggLib is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
+
+-> see COPYING for the verbatim reproduction of the GNU GPL.
+-> see INSTALL for installation instructions.
+-> see AUTHORS for contact information.
+-> see <http://seqlib.sourceforge.net/> for documentation.

@@ -1,0 +1,66 @@
+<apps.conf.in>
+
+This file defines the correct command required to launch applications
+integrated in EggLib.
+
+The data specified in this file will not be effective until:
+    1. EggLib built and installed:
+      For a first installation:
+        $python setup.py build
+        $python setup.py install
+      For reconfiguring applications, calling build_apps is required:
+        $python setup.py build_apps
+        $python setup.py install
+
+    2. ABSOLUTE PATHS WITHOUT SHELL SHORTCUTS have been provided.
+      good: /home/albert/software/PAML/codeml
+      BAD!: ~/software/PAML/codeml
+      BAD!: ../PAML/codeml
+
+    3. The program can be launched at configuration time.
+
+All programs that EggLib might use are listed below. One program must
+use exactly one line. The format is as follow:
+>program  #  command  #  [options] [:file]
+
+The two # symbols and the leading > symbol are mandatory.
+
+program: Must not be modified.
+command: Must be the exact command required to launch the program.
+         Usually, it is the same as the program name. In some cases
+         the actual program name might be different as for example for
+	   primer3, for which the program is actually named primer3_core.
+         If the program is not placed in a directory of the PATH (aka
+         a system directory), you might need to specify its path. In
+         that case DO NOT specify relative path: the path should start
+         from the root (/) or a volume identifier on Windows.
+options: You can specify one or more options to be used during the
+         configuration. These options will be used only when setup.py
+         will verify if the program is installed. The point is mostly to
+         prevent program from hanging while expecting arguments. Options
+         cannot contain spaces, even when escaped with \ or embedded in 
+         quotes. It is possible to specify redirection (or pipe) symbols
+         in combination with file names (or programs).
+file:    The same as for option. Specify one or more file names to
+         temporarily create when attempting to run the program. The
+         files will always be empty. It is illegal to specify the name
+         of a file which already exists. File names cannot contain
+         spaces, even when escaped with \ or embedded in quotes.
+
+Everything is ignored until here.
+########################################################################
+>ms           #  ms            #
+>blastn       #  blastn        #
+>blastp       #  blastp        #
+>clustalw     #  clustalw2     # infile                :infile
+>muscle       #  muscle        #
+>tblastn      #  tblastn       #
+>blastx       #  blastx        #
+>tblastx      #  tblastx       #
+>makeblastdb  #  makeblastdb   #
+>phyml        #  phyml         #  -h
+>dnadist      #  dnadist       #                       :infile
+>neighbor     #  neighbor      #                       :infile
+>codeml       #  codeml        #  infile               :infile
+>primer3      #  primer3_core  #  < infile             :infile
+

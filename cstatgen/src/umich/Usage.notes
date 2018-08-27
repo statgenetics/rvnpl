@@ -1,0 +1,26 @@
+#! Gao Wang's notes on umich library usage
+# Objects
+#{list
+# @@ped@@: class Pedigree
+## @@ped.count@@: int, #individuals
+## @@ped.markerCount@@: int, #markers
+## @@ped.markerNames@@: StringArray, marker names
+# @@ped[i]@@: class Person
+## @@ped[i].famid/pid/fatid/motid@@: String, pedigree info
+## @@ped[i].sex@@: int, sex
+## @@ped[i].traits@@: float*, traits
+## @@ped[i].markers@@: class Alleles*
+## @@ped[i].markers[j][0]/[1]@@: int, allele
+## @@ped[i].markers[j].one/two@@: int, allele, equivalent to item above
+## @@ped[i].father/mother@@: class Person*
+## @@ped[i].sibs@@: class Person**
+## @@ped[i].sibCount@@: int, sib count
+# @@ped.GetMarkerInfo(j)@@: class MarkerInfo
+## @@ped.GetMarkerInfo(j).CountAlleles()@@: int, #alleles
+## @@ped.GetMarkerInfo(j).freq[k]@@: float, allele frequency for allele k
+## @@ped.GetMarkerInfo(j).GetAlleleLabel(k)@@: String, allele representation
+#}
+# Methods
+#{list
+# @@ped.EstimateFrequencies(1, true)@@: method, calculate allele frequency based on founders
+#}

@@ -1,0 +1,33 @@
+1. REQUIREMENTS
+
+Requires a C++ compiler. Tested with the GNU Compiler Collection and
+known to compile under cygwin under Windows and MacOS system.
+
+The following packages are optional. If they are not present at
+compile time, certain features of egglib-cpp will not be available.
+
+    - Bio++ libraries (version 2.0.0 or above)
+        - bpp-core (required for other Bio++ libraries)
+        - bpp-seq (for the method egglib2bpp of Convert)
+        - bpp-popgen (for the class BppDiversity)
+        - URL: <http://biopp.univ-montp2.fr/>
+        
+    - The GNU Scientific Library (gsl)
+        - Required for the ABC class
+        - Developed using gsl 1.9, but it is probable that older
+          versions will work (at least 0.9)
+        - URL: <http://www.gnu.org/software/gsl/>
+
+2. PROCEDURE
+
+egglib-cpp source packages are created using GNU autotools. Therefore
+the installation procedure is standardized:
+
+    sh configure
+    make
+    make install
+
+Use options of the `configure` script to control the installation
+(compiler options, non-standard library locations etc.). Typically, use
+the `--prefix=PATH` option to install the egglib-cpp library and its
+headers in a given location.

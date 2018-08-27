@@ -1,0 +1,174 @@
+Index: merlin/MerlinHaplotype.cpp
+===================================================================
+--- merlin/MerlinHaplotype.cpp	(revision 11)
++++ merlin/MerlinHaplotype.cpp	(working copy)
+@@ -28,7 +28,7 @@
+ #include <ctype.h>
+ 
+ // Maximum number of haplotype vectors to list
+-#define MAXIMUM_HAPLOTYPES    50
++#define MAXIMUM_HAPLOTYPES    500
+ 
+ // Constructor and destructor
+ //
+Index: merlin/MerlinFamily.h
+===================================================================
+--- merlin/MerlinFamily.h	(revision 13)
++++ merlin/MerlinFamily.h	(working copy)
+@@ -34,6 +34,9 @@
+ // The MerlinCore class manages basic likelihood calculations
+ #include "MerlinCore.h"
+ 
++#include <vector>
++#include <string>
++
+ class FamilyAnalysis : public MerlinCore
+    {
+    public:
+@@ -113,6 +116,9 @@
+       // Pointer to handler for NPL information
+       KongAndCox * kac;
+ 
++      // haplotype output, a hack by gw
++      std::vector< std::vector<std::string> > hapOutput;
++
+    protected:
+       // This function actually carries out most analyses
+       virtual void AnalyseLocation(int pos, Tree & inheritance);
+Index: merlin/MerlinHaplotype.cpp
+===================================================================
+--- merlin/MerlinHaplotype.cpp	(revision 13)
++++ merlin/MerlinHaplotype.cpp	(working copy)
+@@ -130,8 +130,9 @@
+          LabelChromosomes(m, inheritanceVector[0], haploString[m]);
+       }
+ 
+-   OutputHaplotypes(haploString, recombinantString, "[Uninformative]");
+-   OutputFounders(haploString, "[Uninformative]");
++   // OutputHaplotypes(haploString, recombinantString, "[Uninformative]");
++   // OutputFounders(haploString, "[Uninformative]");
++   OutputHaplotypesHacked(haploString, recombinantString, which.hapOutput);
+ 
+    // Free temporary storage
+    delete [] haploString;
+@@ -238,9 +239,10 @@
+          marker++;
+          }
+ 
+-      OutputHaplotypes(haploString, recombinantString,
+-                       sample ? "[Sampled]" : "[Most Likely]");
+-      OutputFounders(haploString, sample ? "[Sampled]" : "[Most Likely]");
++      // OutputHaplotypes(haploString, recombinantString,
++      //                  sample ? "[Sampled]" : "[Most Likely]");
++      // OutputFounders(haploString, sample ? "[Sampled]" : "[Most Likely]");
++      OutputHaplotypesHacked(haploString, recombinantString, which.hapOutput);
+ 
+       delete [] haploString;
+       if (!sample && !family->zeroRecombination) delete [] right;
+@@ -255,7 +257,57 @@
+       throw;
+       }
+    }
++void MerlinHaplotype::OutputHaplotypesHacked(StringArray * haplo, StringArray & recomb,
++                                             std::vector< std::vector<std::string> > & hout)
++{
++	// sample output below -- famid, pid, haplotypes w/ recombination symbol
++	// 1	1	2:	2:	2:	2:	2:	2:	2:	2:
++	// 1	1	2:	2:	2:	2:	2:	2:	2:	2:
++	// 1	2	2:	2:	2:	2:	2:	2:	2:	2:
++	// 1	2	2:	2:	2:	2:	2:	2:	2:	2:
++	// 1	3	1:	A1,2:	1:	1:	1:	1:	1:	1:
++	// 1	3	2:	A2,1:	2:	2:	2:	2:	2:	2:
++	// 1	4	2:	2:	2:	2:	2:	2:	2:	2:
++	// 1	4	2:	2:	2:	2:	2:	2:	2:	2:
++	hout.resize(0);
++	// Output two haplotypes for each individual
++	for (int i = 0; i < family->mantra.two_n; i++) {
++		Person & person = family->ped[family->family->path[i >> 1]];
++        	// Use below to make male X actually missing one haplotype.
++        	// commented out to make compatible with linkage analysis conventions
++        	// i.e., male X is homo
++		// if ((person.sex == SEX_MALE && PedigreeGlobals::chromosomeX) && (i & 1)) continue;
++		//
++		std::vector<std::string> buffer(0);
++		std::string swapper;
++		swapper.assign((const char *)person.famid);
++		buffer.push_back(swapper);
++		swapper.assign((const char *)person.pid);
++		buffer.push_back(swapper);
+ 
++		String prefix, suffix;
++
++		for (int m = 0; m < family->markerCount; m++) {
++			prefix.Clear();
++			suffix.Clear();
++
++			for (int j = 0; j < haplo[m][i].Length(); j++)
++				if (haplo[m][i][j] == ' ')
++					continue;
++				else if (isalpha(haplo[m][i][j]))
++					prefix += haplo[m][i][j];
++				else
++					suffix += haplo[m][i][j];
++
++			swapper.assign((const char *)(prefix + suffix));
++			swapper.push_back(recomb[m].IsEmpty() ? ':' : recomb[m][i >> 1]);
++			buffer.push_back(swapper);
++		}
++		hout.push_back(buffer);
++	}
++}
++
++
+ void MerlinHaplotype::OutputHaplotypes(
+      StringArray * haploString, StringArray & recombString,
+      const char * header_format, ...)
+Index: merlin/MerlinHaplotype.h
+===================================================================
+--- merlin/MerlinHaplotype.h	(revision 13)
++++ merlin/MerlinHaplotype.h	(working copy)
+@@ -25,6 +25,8 @@
+ #include "MerlinCore.h"
+ 
+ #include <stdio.h>
++#include <vector>
++#include <string>
+ 
+ // Haplotyping routines
+ //
+@@ -69,5 +71,9 @@
+                             const char * header_format, ...);
+       void HorizontalOutput(StringArray * haplo);
+ 
++      // output to std vector, hacked by gw
++      void OutputHaplotypesHacked(StringArray *haplo, StringArray & recomb,
++                                  std::vector< std::vector<std::string> > & hout);
++
+       // Founder haplotypes output broker
+       void OutputFounders(StringArray * haplo, const char * label, int weight = 1);
+Index: source/libmped/merlin/MerlinFamily.cpp
+===================================================================
+--- source/libmped/merlin/MerlinFamily.cpp	(revision 29)
++++ source/libmped/merlin/MerlinFamily.cpp	(working copy)
+@@ -236,7 +236,7 @@
+                }
+             else
+                {
+-               PrintMessage("  SKIPPED: Requires impossible recombination pattern");
++               PrintMessage("  ABORTED: Requires impossible recombination pattern");
+                AbortAnalysis();
+                }
+             if (!twopoint)
+Index: merlin/MerlinHaplotype.cpp
+===================================================================
+--- merlin/MerlinHaplotype.cpp	(revision 35)
++++ merlin/MerlinHaplotype.cpp	(working copy)
+@@ -564,7 +564,7 @@
+       founder_alleles.Clear();
+       for (int i = 0; i < mantra.two_f; i++)
+          if (haplotypes[i] == -1)
+-            founder_alleles.Add('?');
++            founder_alleles.Add("?");
+          else
+             founder_alleles.Add(markerInfo->GetAlleleLabel(
+                                 cluster->RetrieveAllele(haplotypes[i], m)));
