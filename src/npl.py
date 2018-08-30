@@ -1889,7 +1889,7 @@ def execute(args):
 					fam.null_ibd = []
 				    if not fam.simple:
 					infer_full_flag=2
-				    if infer_full_flag==1 and fam.missing_all!=[] and not fam.wt_fam::
+				    if infer_full_flag==1 and fam.missing_all!=[] and not fam.wt_fam:
 					fam.GT_infer(infer_flag=infer_full_flag)
 					fam.ibd_total,fam.ibd_sall=fam.cal_ibd(sall_flag=args.sall)
 				    if fam.missing_all!=[]:
