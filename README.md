@@ -75,7 +75,7 @@ tabix -p vcf ./rep1.vcf.gz
 
 #### Selected variant file
 
-If you want to analyze only subset of variants into CHP markers, you can provide a selected variant file with each row representing one variant (chromosome position). For example:
+If you want to analyze only subset of variants into CHP markers, you can provide a selected variant file with each row representing one variant (chromosome and position). For example:
 
 ```
 19 58858740
@@ -98,7 +98,38 @@ When analyzing families from different ethnic populations, you need to provide t
 ### Options for generating CHP markers
 
 ```
-TBD
+optional arguments:
+  -h, --help            show this help message and exit
+
+Collapsed haplotype pattern method arguments:
+  -b FILE, --blueprint FILE
+                        Blueprint file that defines regional marker (format:
+                        "chr startpos endpos name avg.distance male.distance
+                        female.distance").
+  --single-markers      Use single variant markers. This switch will overwrite
+                        "--bin" and "--blueprint" arguments.
+
+Input / output options:
+  --fam FILE            Input pedigree and phenotype information in FAM
+                        format.
+  --vcf FILE            Input VCF file, bgzipped.
+  --freq INFO           Info field name for allele frequency in VCF file.
+  --freq_by_fam FILE    Per family info field name for allele frequency in VCF
+                        file.
+  --mle                 Estimate allele frequency from sample
+  --rvhaplo             Only using rare variants for haplotyping
+  -c P, --maf-cutoff P  MAF cutoff to define "common" variants to be excluded
+                        from analyses.
+  --include_vars FILE   Variants to be included in CHP construction
+  --chrom-prefix STRING
+                        Prefix to chromosome name in VCF file if applicable,
+                        e.g. "chr".
+  -o Name, --output Name
+                        Output name prefix.
+
+Runtime arguments:
+  -j N, --jobs N        Number of CPUs to use.
+  -q, --quiet           Disable the display of runtime MESSAGE.
 ```
 
 Example commands are shown below:
