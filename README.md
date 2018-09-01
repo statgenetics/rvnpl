@@ -1,57 +1,128 @@
-# Project Title
+# RV-NPL manual
 
-One Paragraph of project description goes here
+## Installation
 
-## Getting Started
+### Requirements
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
++ python: 2.7
 
-### Prerequisites
++ numpy: >= 1.11.0
 
-What things you need to install the software and how to install them
++ boost_python
 
-```
-Give examples
-```
+  or
 
-### Installing
++ Anaconda: >= 2.3
 
-A step by step series of examples that tell you how to get a development env running
+The RV-NPL package is free and available on github.  Run the following commands to download and install the RV-NPL.
 
-Say what the step will be
-
-```
-Give the example
+``` shell
+git checkout https://github.com/percylinhai/rvnpl.git
+cd rvnpl
+python setup.py install 
 ```
 
-And repeat
+If the program is installed correctly, you will see program options using the following command:
 
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
-
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
+```shell
+rvgdt --help
 ```
 
-### And coding style tests
 
-Explain what these tests test and why
+
+## Input Format
+
+### Genotype File
+
+The genotype file gives the genotype information of each subject per line. No header is needed in the genotype file. The first column is the subject id (which should be the same as the subject id in pedigree files), and the following columns is the number of minor allele on each variant sites (0/1/2 coding and -9 is missing), which is separated by a space or tab. An example of the genotype file is given below
 
 ```
-Give an example
+11000.fa -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
+11000.mo -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
+11000.p1 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
+11000.s1 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
+11001.fa -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
+11001.mo -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
+11001.p1 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
+11002.fa -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
+11002.mo -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
+11002.p1 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
 ```
 
-## Deployment
 
-Add additional notes about how to deploy this on a live system
+
+### Pedigree File
+
+The pedigree file is a white-space (space or tab) delimited file without header. The first six columns are mandatory:
+
++ Family ID     
++ Individual ID: must be unique within the family     
++ Paternal ID: 0 if not available 
++ Maternal ID: 0 if not available 
++ Sex:  1=male, 2=female   
++ Phenotype: 1=unaffected, 2=affected
+
+An example pedigree file is given below:
+
+```
+11000 11000.fa 0 0 1 1
+11000 11000.mo 0 0 2 1
+11000 11000.p1 11000.fa 11000.mo 1 2
+11000 11000.s1 11000.fa 11000.mo 2 1
+11001 11001.fa 0 0 1 1
+11001 11001.mo 0 0 2 1
+11001 11001.p1 11001.fa 11001.mo 1 2
+11002 11002.fa 0 0 1 1
+11002 11002.mo 0 0 2 1
+11002 11002.p1 11002.fa 11002.mo 2 2
+```
+
+### Optional Files
+
+#### Selected variant file
+
+In case you want to weight each variant differently. The weights can be given in a single-column file (no header), in which each line is the weight for the corresponding variant site (the order should be the same as the order of variant sites in genotype file).
+
+## Options for npl analysis
+
+```
+optional arguments:
+  -h, --help            show this help message and exit
+
+Options for doing analysis on CHP markers(default) or SNV markers:
+  --snv                 Calculate on SNV markers
+
+Input/Output options:
+  --path PATH           Path for input pedigree information.
+  --output PATH         Path for output files
+  --n_jobs N            number of multiprocess
+
+Options for calculating p-values:
+  --exact               get the exact distribution of Z-score and calculate p
+                        value from it
+  --cut FLOAT, -c FLOAT
+                        threshold for adaptive permutations
+  --rep N               times of permutations
+  --fam_rep N           times of permutations for each family
+  --force               keep permutation times unchanged
+  --perfect_max N       maximum for inheritance vector iterations
+  --info_only           include only informative families
+  --perfect             use perfect data approximation in calculating Z-score
+  --kc                  use Kong&Cox(1997) extension for analytical p-values
+  --sall                enable calculation of NPL-all
+  --rvibd               calculate IBD for RV only
+```
+
+Example commands are shown below:
+
+```shell
+rvgdt test --geno ./example/rvgdt_test.geno --ped ./example/rvgdt_test.ped --max_iter 100
+
+rvgdt test --geno ./example/rvgdt_test.geno --ped ./example/rvgdt_test_covariates.ped --max_iter 100 --weight ./example/rvgdt_test.weights
+```
+
+The output is given in the ${proj}.rvgdt_output file. 
+
+# Questions
+
+If you have any further questions, please fell free to create a issue ticket in github. 
