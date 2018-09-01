@@ -75,7 +75,23 @@ tabix -p vcf ./rep1.vcf.gz
 
 #### Selected variant file
 
-In case you want to weight each variant differently. The weights can be given in a single-column file (no header), in which each line is the weight for the corresponding variant site (the order should be the same as the order of variant sites in genotype file).
+If you want to analyze only subset of variants into CHP markers, you can provide a selected variant file with each row representing one variant (chromosome position). For example:
+
+```
+19 58858740
+19 58858782
+19 58858787
+```
+
+#### Frequency by family file
+
+When analyzing families from different ethnic populations, you need to provide this file to indicate the frequency column for each family. The frequency column should be the corresponding value under "INFO" in the VCF file. For example:
+
+```
+11000 gnomAD_NFE
+11001 gnomAD_NFE
+11002 gnomAD_AMR
+```
 
 ## Options
 
