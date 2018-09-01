@@ -83,7 +83,14 @@ An example pedigree file is given below:
 
 In case you want to weight each variant differently. The weights can be given in a single-column file (no header), in which each line is the weight for the corresponding variant site (the order should be the same as the order of variant sites in genotype file).
 
-## Options for npl analysis
+## Options
+
+### Options for generating CHP markers
+
+```
+TBD
+```
+### Options for npl analysis
 
 ```
 optional arguments:
