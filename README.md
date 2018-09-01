@@ -132,9 +132,8 @@ Options for calculating p-values:
 Example commands are shown below:
 
 ```shell
-rvgdt test --geno ./example/rvgdt_test.geno --ped ./example/rvgdt_test.ped --max_iter 100
+rvnpl npl --path CHP_func_SEQL/${GENE} --output CHP_func_SEQL/${GENE} --exact --info_only --perfect --sall --rvibd --n_jobs 8 -c 0.001 --rep 2000000
 
-rvgdt test --geno ./example/rvgdt_test.geno --ped ./example/rvgdt_test_covariates.ped --max_iter 100 --weight ./example/rvgdt_test.weights
 ```
 
 The output is given in the ${proj}.rvgdt_output file. 
