@@ -90,6 +90,15 @@ In case you want to weight each variant differently. The weights can be given in
 ```
 TBD
 ```
+
+Example commands are shown below:
+
+```shell
+rvnpl collapse --fam 100extend_01.ped --vcf $datapath/$g/rep1.vcf.gz -f MERLIN --output ./rep1 --freq EVSMAF -c 0.01 --rvhaplo --include_vars $g.txt 
+
+rvnpl collapse --fam 100extend_01.ped --vcf $datapath/$g/rep1.vcf.gz -f MERLIN --output ./rep1 --freq_by_fam Freq_by_Fam.txt -c 0.01 --rvhaplo --include_vars $g.txt
+```
+
 ### Options for npl analysis
 
 ```
