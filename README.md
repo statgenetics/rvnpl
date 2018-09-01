@@ -25,35 +25,18 @@ python setup.py install
 If the program is installed correctly, you will see program options using the following command:
 
 ```shell
-rvgdt --help
+rvnpl --help
 ```
 
 
 
 ## Input Format
 
-### Genotype File
+### Input files for generating CHP markers
 
-The genotype file gives the genotype information of each subject per line. No header is needed in the genotype file. The first column is the subject id (which should be the same as the subject id in pedigree files), and the following columns is the number of minor allele on each variant sites (0/1/2 coding and -9 is missing), which is separated by a space or tab. An example of the genotype file is given below
+#### Pedigree File
 
-```
-11000.fa -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
-11000.mo -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
-11000.p1 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
-11000.s1 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
-11001.fa -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
-11001.mo -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
-11001.p1 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
-11002.fa -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
-11002.mo -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
-11002.p1 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9 -9
-```
-
-
-
-### Pedigree File
-
-The pedigree file is a white-space (space or tab) delimited file without header. The first six columns are mandatory:
+The pedigree file (PED file) is a white-space (space or tab) delimited file without header. The first six columns are mandatory:
 
 + Family ID     
 + Individual ID: must be unique within the family     
@@ -76,6 +59,17 @@ An example pedigree file is given below:
 11002 11002.mo 0 0 2 1
 11002 11002.p1 11002.fa 11002.mo 2 2
 ```
+#### Zipped and tabixed VCF file
+The VCF file should contain variants for individuals corresponding to the PED file.
+
+```
+bgzip ./rep1.vcf
+tabix -p vcf ./rep1.vcf.gz
+```
+
+
+
+
 
 ### Optional Files
 
