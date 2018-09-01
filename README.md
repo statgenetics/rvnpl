@@ -160,7 +160,6 @@ Options for calculating p-values:
   --cut FLOAT, -c FLOAT
                         threshold for adaptive permutations
   --rep N               times of permutations
-  --fam_rep N           times of permutations for each family
   --force               keep permutation times unchanged
   --perfect_max N       maximum for inheritance vector iterations
   --info_only           include only informative families
