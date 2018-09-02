@@ -135,9 +135,8 @@ Runtime arguments:
 Example commands are shown below:
 
 ```shell
-rvnpl collapse --fam 100extend_01.ped --vcf $datapath/$g/rep1.vcf.gz -f MERLIN --output ./rep1 --freq EVSMAF -c 0.01 --rvhaplo --include_vars $g.txt 
-
-rvnpl collapse --fam 100extend_01.ped --vcf $datapath/$g/rep1.vcf.gz -f MERLIN --output ./rep1 --freq_by_fam Freq_by_Fam.txt -c 0.01 --rvhaplo --include_vars $g.txt
+cd example
+rvnpl collapse --fam 100extend_01.ped --vcf A1BG/rep1.vcf.gz --output ./rep1 --freq EVSMAF -c 0.01 --rvhaplo --include_vars A1BG.txt 
 ```
 
 ### Options for npl analysis
@@ -172,11 +171,11 @@ Options for calculating p-values:
 Example commands are shown below:
 
 ```shell
-rvnpl npl --path CHP_func_SEQL/${GENE} --output CHP_func_SEQL/${GENE} --exact --info_only --perfect --sall --rvibd --n_jobs 8 -c 0.001 --rep 2000000
+rvnpl npl --path ./rep1 --output ./rep1 --exact --info_only --perfect --sall --rvibd --n_jobs 8 -c 0.001 --rep 2000000
 
 ```
 
-The output is given in the ${proj}.rvgdt_output file. 
+The output is located in the given folder.
 
 # Questions
 
