@@ -38,10 +38,6 @@ def checkParams(args):
     if not args.blueprint:
         args.blueprint = os.path.join(env.resource_dir, 'genemap.txt')
     args.format = [x.lower() for x in set(args.format)]
-    if args.run_linkage and "linkage" not in args.format:
-        args.format.append('linkage')
-    if None in [args.inherit_mode, args.prevalence, args.wild_pen, args.muta_pen] and "linkage" in args.format:
-        env.error('To generate LINKAGE format or run LINKAGE analysis, please specify all options below:\n\t--prevalence, -K\n\t--moi\n\t--wild-pen, -W\n\t--muta-pen, -M', show_help = True, exit = True)
     if args.tempdir is not None:
         env.ResetTempdir(args.tempdir)
     return True
@@ -1300,9 +1296,7 @@ def main(args):
         else:
             env.log('{:,d} units will be converted to {} format'.format(env.success_counter.value, fmt.upper()))
             env.format_counter.value = 0
-            format(tpeds, os.path.join(env.tmp_cache, "{}.tfam".format(env.output)),
-                   args.prevalence, args.wild_pen, args.muta_pen, fmt,
-                   args.inherit_mode, args.theta_max, args.theta_inc)
+            format(tpeds, os.path.join(env.tmp_cache, "{}.tfam".format(env.output)))
             env.log('{:,d} units successfully converted to {} format\n'.\
                     format(env.format_counter.value, fmt.upper()), flush = True)
             if env.skipped_counter.value:
@@ -1313,25 +1307,5 @@ def main(args):
             cache.write(arcroot = fmt.upper(),
                         source_dir = os.path.join(env.tmp_dir, fmt.upper()), mode = 'a')
     mkpath(env.outdir)
-    if args.run_linkage:
-        cache.setID('analysis')
-        if not args.vanilla and cache.check():
-            env.log('Loading linkage analysis result from archive ...'.format(fmt.upper()))
-            cache.load(target_dir = env.output, names = ['heatmap'])
-        else:
-            run_linkage(args.blueprint, args.theta_inc, args.theta_max, args.output_limit)
-            env.log('Linkage analysis succesfully performed for {:,d} units\n'.\
-                    format(env.run_counter.value, fmt.upper()), flush = True)
-            if env.makeped_counter.value:
-                env.log('{} "makeped" runtime errors occurred'.format(env.makeped_counter.value))
-            if env.pedcheck_counter.value:
-                env.log('{} "pedcheck" runtime errors occurred'.format(env.pedcheck_counter.value))
-            if env.unknown_counter.value:
-                env.log('{} "unknown" runtime errors occurred'.format(env.unknown_counter.value))
-            if env.mlink_counter.value:
-                env.log('{} "mlink" runtime errors occurred'.format(env.mlink_counter.value))
-            cache.write(arcroot = 'heatmap', source_dir = os.path.join(env.output, 'heatmap'), mode = 'a')
-        html(args.theta_inc, args.theta_max, args.output_limit)
-    else:
-        env.log('Saving data to [{}]'.format(os.path.abspath(env.output)))
-        cache.load(target_dir = env.output, names = [fmt.upper() for fmt in args.format])
+    env.log('Saving data to [{}]'.format(os.path.abspath(env.output)))
+    cache.load(target_dir = env.output, names = [fmt.upper() for fmt in args.format])
