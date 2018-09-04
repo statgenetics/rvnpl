@@ -1273,7 +1273,7 @@ class Family:
             self.sall_null_mean = float('%.9f'%(sum(ibd_all)/len(ibd_all)))
             self.sall_null_std = self.std(ibd_all,self.sall_null_mean,False)
 
-        def null_perfect_rvibd(self,n_jobs,perfect_max,sall_flag=False):
+        def null_perfect_rvibd(self,n_jobs,perfect_max,sall_flag=False,infer_flag=2):
         #null distribution of IBDs under perfect data
             screen_output.run_out("calculating theoretical null distribution for rvibd...")
             rep=pow(2,2*len(self.nonfounder))
@@ -1340,7 +1340,7 @@ class Family:
                 procs = []
                 for proc in range(n_jobs):
                     p = myProcess(proc,self.founder,self,inqueue,all_ibd,\
-                        null_ibd,pinv_sall,pinv_key_dict,pinv_pair_dict,sall_flag)
+                        null_ibd,pinv_sall,pinv_key_dict,pinv_pair_dict,sall_flag,infer_flag)
                     p.start()
                     procs.append(p)
                     inqueue.put(None)
@@ -1892,6 +1892,7 @@ def execute(args):
 				    if infer_full_flag==1 and fam.missing_all!=[] and not fam.wt_fam:
 					fam.GT_infer(infer_flag=infer_full_flag)
 					fam.ibd_total,fam.ibd_sall=fam.cal_ibd(sall_flag=args.sall)
+					fam.all_ibd={}
 				    if fam.missing_all!=[]:
                                         fam_combined_info=(fam.famstruct,fam.conditional_prob['~combined'][0])
                                         if args.perfect and not args.rvibd:
@@ -1910,24 +1911,24 @@ def execute(args):
 						try:
 						    fam.dist_s,fam.null_mean,fam.null_std,fam.sall_null_mean,fam.sall_null_std=fam_conditional_prob_null_perfect[str(fam_conditional_prob_perfect.index(fam_combined_info))]
 						except:
-                                            	    fam.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag)
+                                            	    fam.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag,infer_flag=infer_full_flag)
 						    fam_conditional_prob_perfect.append(fam_combined_info)
 						    fam_conditional_prob_null_perfect[str(fam_conditional_prob_perfect.index(fam_combined_info))]=[fam.dist_s,fam.null_mean,fam.null_std,fam.sall_null_mean,fam.sall_null_std]
 						if pall_flag and fam.sall_null_mean==0:
-                                            	    fam.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag)
+                                            	    fam.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag,infer_flag=infer_full_flag)
 						    fam_conditional_prob_null_perfect[str(fam_conditional_prob_perfect.index(fam_combined_info))]=[fam.dist_s,fam.null_mean,fam.null_std,fam.sall_null_mean,fam.sall_null_std]
 					    elif fam.null_std==0:
 						#unlikely to get different values through permutations
 						#this can only occur in rvibd when missing
 						fam.null_ibd=[]
 						if fam_combined_info not in fam_conditional_prob_perfect:
-                                            	    fam.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag)
+                                            	    fam.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag,infer_flag=infer_full_flag)
 						    fam_conditional_prob_perfect.append(fam_combined_info)
 						    fam_conditional_prob_null_perfect[str(fam_conditional_prob_perfect.index(fam_combined_info))]=[fam.dist_s,fam.null_mean,fam.null_std,fam.sall_null_mean,fam.sall_null_std]
 						else:
 						    fam.dist_s,fam.null_mean,fam.null_std,fam.sall_null_mean,fam.sall_null_std=fam_conditional_prob_null_perfect[str(fam_conditional_prob_perfect.index(fam_combined_info))]
 						    if pall_flag and fam.sall_null_mean==0:
-                                            	        fam.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag)
+                                            	        fam.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag,infer_flag=infer_full_flag)
 							fam_conditional_prob_null_perfect[str(fam_conditional_prob_perfect.index(fam_combined_info))]=[fam.dist_s,fam.null_mean,fam.null_std,fam.sall_null_mean,fam.sall_null_std]
                                             else: #use permutations
 						fam.dist_s=None
@@ -1970,7 +1971,7 @@ def execute(args):
                                             if args.perfect:
                                                 fam.dist_s,fam.null_mean,fam.null_std,fam.sall_null_mean,fam.sall_null_std=famstruct_null_perfect[str(famstruct_perfect.index(fam.famstruct))]
 						if pall_flag and fam.sall_null_mean==0:
-                                            	    fam.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag)
+                                            	    fam.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag,infer_flag=infer_full_flag)
 						    famstruct_null_perfect[str(famstruct_perfect.index(fam.famstruct))]=[fam.dist_s,fam.null_mean,fam.null_std,fam.sall_null_mean,fam.sall_null_std] 
 					    else:
                                                 if fam.famstruct not in famstruct:
