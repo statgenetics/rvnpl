@@ -568,7 +568,7 @@ class Family:
 	def remove(self,iid):
 	        #remove useless individuals
 	    if self.fam_dict.has_key(iid):
-		print "removing {}".format(iid)
+		#print "removing {}".format(iid)
 		if iid in self.missing_all:
 		    for m_person in self.sorted_miss_persons:
 			if iid in m_person:
@@ -1213,7 +1213,7 @@ class Family:
                     break
             else:
                 try:
-                    print("timed out, killing all processes")
+                    #print("timed out, killing all processes")
                     for p in procs:
                         p.terminate()
                         p.join()
@@ -1243,7 +1243,7 @@ class Family:
 	    p = Pool(processes=n_jobs)
 	    inv_list=[]
 	    rep=pow(2,2*len(self.invnf))
-	    print rep
+	    #print rep
 	    if rep>perfect_max:
 		inv_list=random.sample(xrange(rep),perfect_max)
 	    else:
@@ -1258,7 +1258,7 @@ class Family:
             for r in result:
                 null_ibd.append((float('%.9f'%r[0]),float('%.9f'%r[1])))
                 invs.append(int(r[2]))
-            print len(null_ibd)
+            #print len(null_ibd)
 	    if self.pinv_sall==[]:
 		self.pinv_sall=[0 for x in xrange(rep)]
                 for idx,inv in enumerate(invs):
@@ -1277,7 +1277,7 @@ class Family:
         #null distribution of IBDs under perfect data
             screen_output.run_out("calculating theoretical null distribution for rvibd...")
             rep=pow(2,2*len(self.nonfounder))
-            print rep
+            #print rep
             #Get all possible parental genotype configurations
             foundergt_list=[]
             foundergt_dic={}
@@ -1353,7 +1353,7 @@ class Family:
                         break
                 else:
                     try:
-                        print("timed out, killing all processes")
+                        #print("timed out, killing all processes")
                         for p in procs:
                             p.terminate()
                             p.join()
@@ -1480,7 +1480,7 @@ def K_C(coeff,min_b):
             delta_f=fsolve(likelihood_diff,0,args=tuple(coeff)) 
             delta=[tmp_delta for tmp_delta in list(delta_f) if tmp_delta>=0 and tmp_delta<=min_b]
 	max_l=None
-	print "delta:"+repr(delta)
+	#print "delta:"+repr(delta)
 	if len(delta)==0:
 	    #if there is no zero for likelihood_diff
 	    #note likelihood_diff(0,tuple(coeff)) equals to original Z-score and should always be positive here.
@@ -1510,7 +1510,7 @@ def K_C(coeff,min_b):
                     max_l=likelihood(tuple(coeff),delta[0])
                 except:
                     max_l=likelihood(tuple(coeff),0.99*delta[0])
-        print max_l,likelihood(tuple(coeff),0)
+        #print max_l,likelihood(tuple(coeff),0)
         lrt=max_l-likelihood(tuple(coeff),0)
         if lrt<0:
             lrt=0
@@ -1682,7 +1682,7 @@ def execute(args):
 			    fam_class[m][fid]=fam
 			    if fam.wt_fam:
 				wt_fam_count+=1
-			    print fam.info, fam.famstruct
+			    #print fam.info, fam.famstruct
 			    #print fam.conditional_prob['~combined'][0]
 			    if args.perfect:
                                 if args.rvibd:
@@ -1755,7 +1755,7 @@ def execute(args):
 				z_sum[m] += z
 			    z_pair[m].append(z)
 			    #print fam.ibd_total
-			    print "z:"+repr(z)
+			    #print "z:"+repr(z)
 			    observe[m] = float('%.9f'%(observe[m]+o))                     #combined value of IBD across family
                             if args.sall:
                             ###S-all statistic########
@@ -1767,7 +1767,7 @@ def execute(args):
 				#print fam.ibd_sall,fam.sall_null_mean,fam.sall_null_std
 				if not fam.wt_fam:
 				    zall_sum[m] += z_sall
-				print "zall:"+repr(z_sall)
+				#print "zall:"+repr(z_sall)
 				z_all[m].append(z_sall)
                                 ###############
                             if args.perfect:
@@ -1787,27 +1787,27 @@ def execute(args):
 			    continue
 			Z_pair = z_sum[m]/math.sqrt(fam_num)
 			p_norm = stats.norm.sf(Z_pair)    #asymptotic p-value
-			print Z_pair,p_norm
+			#print Z_pair,p_norm
 			asymp_pv[m] = (p_norm,p_norm)
 			z_scores[m] = (Z_pair,Z_pair)
 			if args.sall:
 			    #asymptotic p-value NPL-all
 			    Z_all = zall_sum[m]/math.sqrt(fam_num)
 			    pall_norm = stats.norm.sf(Z_all)
-			    print Z_all,pall_norm
+			    #print Z_all,pall_norm
 			    asymp_pv[m] = (p_norm,pall_norm)
 			    z_scores[m] = (Z_pair,Z_all)
 			if args.kc and z_scores[m][0]>0 and z_scores[m][1]>0:
 			    ####Kong&Cox#####
 			    ##only tested for delta>0###
-			    print fam_num
+			    #print fam_num
 			    coeff_pair=[]
 			    for tmp_z_pair in z_pair[m]:
 				coeff_pair.append(tmp_z_pair/math.sqrt(fam_num))
 			    min_b_pair=min(prior_b_pair[m])*math.sqrt(fam_num)
-			    print "min_b_pair:"+repr(min_b_pair)
+			    #print "min_b_pair:"+repr(min_b_pair)
 			    Zpair_kc,p_pair_norm_kc=K_C(coeff_pair,min_b_pair)	
-			    print Zpair_kc,p_pair_norm_kc
+			    #print Zpair_kc,p_pair_norm_kc
 			    asymp_pv[m] = (p_pair_norm_kc,p_pair_norm_kc)
 			    z_scores[m] = (Zpair_kc,Zpair_kc)
 			    if args.sall:
@@ -1815,9 +1815,9 @@ def execute(args):
 				for tmp_z_all in z_all[m]:
 				    coeff_all.append(tmp_z_all/math.sqrt(fam_num))
 				min_b_all=min(prior_b_all[m])*math.sqrt(fam_num)
-				print "min_b_all:"+repr(min_b_all)	
+				#print "min_b_all:"+repr(min_b_all)	
 				Zall_kc,p_all_norm_kc=K_C(coeff_all,min_b_all)	
-				print Zall_kc,p_all_norm_kc
+				#print Zall_kc,p_all_norm_kc
 				asymp_pv[m] = (p_pair_norm_kc,p_all_norm_kc)
 				z_scores[m] = (Zpair_kc,Zall_kc)
 		    pr_s_min, pr_sall_min = 1, 1
@@ -1873,12 +1873,12 @@ def execute(args):
 				if fam_rep==args.fam_rep:
 				    break	
 				increase_permutation=True
-				print "increase permutation"
-				print fam_rep,rep
+				#print "increase permutation"
+				#print fam_rep,rep
 				idx=fam_reps.index(fam_rep)
 				fam_rep=fam_reps[idx+1]
 				rep=reps[idx+1]
-				print fam_rep,rep
+				#print fam_rep,rep
 			    pall_flag=True if fam_rep>1000 or args.sall else False
 			    infer_full_flag=1 if fam_rep>1000 else 2
 			    rtext+='permutations:{}\n'.format(rep)
@@ -1943,7 +1943,7 @@ def execute(args):
                                         if fam.null_ibd:
                                             add_time=0
                                             while max([x[0] for x in fam.null_ibd])<fam.ibd_total:
-                                                print "add additional permutations"
+                                                #print "add additional permutations"
                                                 if args.perfect and not args.rvibd:
                                                     fam.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag,simple=True)
                                                 else:
@@ -1952,7 +1952,7 @@ def execute(args):
                                                 if add_time > 10:
                                                     break
                                             #print fam.ibd_total,sorted(fam.null_ibd)[-10:]
-                                            print len(fam.null_ibd)
+                                            #print len(fam.null_ibd)
 				    elif fam.info:
 					if args.perfect and not args.rvibd:
 					    if fam.famstruct not in famstruct:
