@@ -12,7 +12,7 @@
 
 + Anaconda: >= 2.3
 
-+ gcc-5
++ gcc-5, g++-5
 
 + boost_python
 
