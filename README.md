@@ -12,6 +12,8 @@
 
 + Anaconda: >= 2.3
 
++ gcc-5
+
 + boost_python
 
 The RV-NPL package is free and available on github.  Run the following commands to download and install the RV-NPL.
