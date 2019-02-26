@@ -38,6 +38,10 @@ def checkParams(args):
     if not args.blueprint:
         args.blueprint = os.path.join(env.resource_dir, 'genemap.txt')
     args.format = [x.lower() for x in set(args.format)]
+    if args.run_linkage and "linkage" not in args.format:
+        args.format.append('linkage')
+    if None in [args.inherit_mode, args.prevalence, args.wild_pen, args.muta_pen] and "linkage" in args.format:
+        env.error('To generate LINKAGE format or run LINKAGE analysis, please specify all options below:\n\t--prevalence, -K\n\t--moi\n\t--wild-pen, -W\n\t--muta-pen, -M', show_help = True, exit = True)
     if args.tempdir is not None:
         env.ResetTempdir(args.tempdir)
     return True
@@ -83,6 +87,7 @@ class RData(dict):
         self.freq = []
         self.genotype_all={}
         self.mle_mafs={}
+	self.missing_persons=[]
         self.reset()
 
     def reset(self):
@@ -103,6 +108,8 @@ class RData(dict):
         self.superMarkerCount = 0
         self.complied_markers = []
         self.combined_regions = []
+	self.patterns={}
+	self.missing_persons=[]
 
     def getMidPosition(self):
         if len(self.variants) == 0:
@@ -541,6 +548,9 @@ class MarkerMaker:
                 #for person in data.families[item]:
                 #    data[person] = self.missings
                 continue
+	    for person in output_sample:
+		if set(person[5:])==set(['00']):
+		    data.missing_persons.append(person[1])
             with env.lock:
                 if not env.prephased:
                     tmp_log_output=env.tmp_log + str(os.getpid())
@@ -777,6 +787,28 @@ class MarkerMaker:
                     var_num=len(varnames[item])
                     fake_person=[item, 'FAKEPERSON']+['1:']*var_num
                     haplotypes[item].append(fake_person)
+		for hidx,hap in enumerate(haplotypes[item]):
+		    if hap[1] in data.missing_persons:
+			missing_person=[item,hap[1]]+['?:']*len(varnames[item])
+			haplotypes[item][hidx]=missing_person
+		    '''
+		    if not hidx%2:
+			possible_hap1,possible_hap2=[[],[]],[[],[]]
+		    for tmpa in hap[2:]:
+			if tmpa[0].isupper():
+			    possible_hap1[hidx%2].append(tmpa[1])
+			    possible_hap2[hidx%2].append(tmpa.split(',')[1][0])
+			else:
+			    possible_hap1[hidx%2].append(tmpa[0])
+			    possible_hap2[hidx%2].append(tmpa[0])
+		    if hidx%2:
+			possible_hap1=[tuple(possible_hap1[0]),tuple(possible_hap1[1])]
+			possible_hap2=[tuple(possible_hap2[0]),tuple(possible_hap2[1])]
+			if set(possible_hap1)!=set(possible_hap2): #uncertainty in haplotypes=>missing genotypesi
+			    missing_person=[item,hap[1]]+['?:']*var_num
+			    haplotypes[item][hidx-1]=missing_person
+			    haplotypes[item][hidx]=missing_person
+		    '''	
         if clusters is not None:
             clusters_idx = [[[varnames[item].index(x) for x in y] for y in clusters] for item in haplotypes]
         else:
@@ -856,16 +888,35 @@ class MarkerMaker:
             # each person's haplotype
             data.varnames_by_fam[item]=varnames[item]
             token = ''
-            for idx, line in enumerate(haplotypes[item]):
-                if not idx % 2:
-                    token = line[2][1] if line[2][0].isupper() else line[2][0]
-                    if token=='?':
-                        token='0'
-                else:
-                    tmp_token = line[2][1] if line[2][0].isupper() else line[2][0]
-                    if tmp_token=='?':
-                        tmp_token='0'
-                    data[line[1]] = (token, tmp_token)
+	    for idx,line in enumerate(haplotypes[item]):
+		if line[1] in data.missing_persons:
+		    data[line[1]]=('0','0')
+		else:
+		    if not idx % 2:
+			token = line[2][1] if line[2][0].isupper() else line[2][0]
+			if token=='?':
+			    token='0'
+		    else:
+			tmp_token = line[2][1] if line[2][0].isupper() else line[2][0]
+			if tmp_token=='?':
+			    tmp_token='0'
+			data[line[1]] = (token, tmp_token)
+		'''
+		if not hidx%2:
+		    possible_hap1,possible_hap2=[None,None],[None,None]
+		tmpa=hap[2]
+		if tmpa[0].isupper():
+		    possible_hap1[hidx%2]=tmpa[1]
+		    possible_hap2[hidx%2]=tmpa.split(',')[1][0]
+		else:
+		    possible_hap1[hidx%2]=tmpa[0]
+		    possible_hap2[hidx%2]=tmpa[0]
+		if hidx%2:
+		    if set(possible_hap1)!=set(possible_hap2): #uncertainty in haplotypes=>missing genotypes
+			data[hap[1]]=('0','0')
+		    else:
+			data[hap[1]]=(possible_hap1[0],possible_hap1[1])
+		'''
         # get maf
             data.maf[item] = [(1 - mafs[item][varnames[item][0]], mafs[item][varnames[item][0]])]
             data.maf[item] = tuple(tuple(np.array(v) / np.sum(v)) if np.sum(v) else v
@@ -1296,7 +1347,9 @@ def main(args):
         else:
             env.log('{:,d} units will be converted to {} format'.format(env.success_counter.value, fmt.upper()))
             env.format_counter.value = 0
-            format(tpeds, os.path.join(env.tmp_cache, "{}.tfam".format(env.output)))
+            format(tpeds, os.path.join(env.tmp_cache, "{}.tfam".format(env.output)),
+                   args.prevalence, args.wild_pen, args.muta_pen, fmt,
+                   args.inherit_mode, args.theta_max, args.theta_inc)
             env.log('{:,d} units successfully converted to {} format\n'.\
                     format(env.format_counter.value, fmt.upper()), flush = True)
             if env.skipped_counter.value:
@@ -1307,5 +1360,25 @@ def main(args):
             cache.write(arcroot = fmt.upper(),
                         source_dir = os.path.join(env.tmp_dir, fmt.upper()), mode = 'a')
     mkpath(env.outdir)
-    env.log('Saving data to [{}]'.format(os.path.abspath(env.output)))
-    cache.load(target_dir = env.output, names = [fmt.upper() for fmt in args.format])
+    if args.run_linkage:
+        cache.setID('analysis')
+        if not args.vanilla and cache.check():
+            env.log('Loading linkage analysis result from archive ...'.format(fmt.upper()))
+            cache.load(target_dir = env.output, names = ['heatmap'])
+        else:
+            run_linkage(args.blueprint, args.theta_inc, args.theta_max, args.output_limit)
+            env.log('Linkage analysis succesfully performed for {:,d} units\n'.\
+                    format(env.run_counter.value, fmt.upper()), flush = True)
+            if env.makeped_counter.value:
+                env.log('{} "makeped" runtime errors occurred'.format(env.makeped_counter.value))
+            if env.pedcheck_counter.value:
+                env.log('{} "pedcheck" runtime errors occurred'.format(env.pedcheck_counter.value))
+            if env.unknown_counter.value:
+                env.log('{} "unknown" runtime errors occurred'.format(env.unknown_counter.value))
+            if env.mlink_counter.value:
+                env.log('{} "mlink" runtime errors occurred'.format(env.mlink_counter.value))
+            cache.write(arcroot = 'heatmap', source_dir = os.path.join(env.output, 'heatmap'), mode = 'a')
+        html(args.theta_inc, args.theta_max, args.output_limit)
+    else:
+        env.log('Saving data to [{}]'.format(os.path.abspath(env.output)))
+        cache.load(target_dir = env.output, names = [fmt.upper() for fmt in args.format])
