@@ -2096,20 +2096,9 @@ def execute(args):
 		    pv = file("{}/pvalue.txt".format(args.output),'a')
 		    marker_num=len(markername)
 		    if args.exact:
-			if args.snv:
-			    pv.write('%s\t%.9f\t%.9f\n'%(genename,pr_s_min,pr_sall_min))
-			else:
-			    #if there are sub-units, use Beta distribution to do adjustment
-			    pr_pair_beta = stats.beta.cdf(pr_s_min,1,marker_num)
-			    pr_all_beta = stats.beta.cdf(pr_sall_min,1,marker_num)
-			    pv.write('%s\t%.9f\t%.9f\n'%(genename,pr_pair_beta,pr_all_beta))
+			pv.write('%s\t%.9f\t%.9f\n'%(genename,pr_s_min,pr_sall_min))
 		    else:
 			p_pair_min,p_all_min=min([x for x in asymp_pv if x!=1])
-			if args.snv:
-			    pv.write('%s\t%.9f\t%.9f\n'%(genename,p_pair_min,p_all_min))
-			else:
-			    p_pair_beta=stats.beta.cdf(p_pair_min,1,marker_num)
-			    p_all_beta=stats.beta.cdf(p_all_min,1,marker_num)
-			    pv.write('%s\t%.9f\t%.9f\n'%(genename,p_pair_beta,p_all_beta))
+			pv.write('%s\t%.9f\t%.9f\n'%(genename,p_pair_min,p_all_min))
 		    pv.close()
 
