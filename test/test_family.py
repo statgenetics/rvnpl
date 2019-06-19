@@ -3,14 +3,8 @@
 # Copyright (c) Linhai Zhao
 # Distributed under the terms of the MIT License.
 
-import os
-import subprocess
 import unittest
 import pickle
-
-def run_cmd(cmd):
-    return subprocess.call(cmd, stderr=subprocess.DEVNULL,
-                           stdout=subprocess.DEVNULL, shell=True)
 
 class TestParser(unittest.TestCase):
     def setUp(self):
