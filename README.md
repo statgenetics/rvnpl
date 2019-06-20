@@ -19,7 +19,7 @@
 The RV-NPL package is free and available on github.  Run the following commands to download and install the RV-NPL.
 
 ``` shell
-git clone https://github.com/percylinhai/rvnpl.git
+git clone https://github.com/statgenetics/rvnpl.git
 cd rvnpl
 python setup.py install 
 ```
