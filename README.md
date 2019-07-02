@@ -6,10 +6,6 @@
 
 + python: 2.7
 
-+ numpy: >= 1.11.0
-
-  or
-
 + Anaconda: >= 2.3
 
 + gcc-5, g++-5
