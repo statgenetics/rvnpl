@@ -19,7 +19,7 @@ from scipy.optimize import fsolve
 from sympy.solvers import solve,solveset
 from sympy import Symbol,Interval
 from RVNPLcpp import cmissingparents,cmissing_infer,sall_cpp,cpostInv
-from RVNPL import screen_output,ibd_module,utils,family_class,npl_class
+from RVNPL import screen_output,utils,family_class_combined,npl_class
 #################
 #manager=Manager()
 
@@ -84,7 +84,7 @@ def execute(args):
 			for fid in fam_to_analyze[markername[m]]:
 			    #for each family, construct a class of Family
 			    print "fid:"+repr(fid)
-			    fam = family_class.Family(m)
+			    fam = family_class_combined.Family(m)
 			    fam.rvibd = args.rvibd
 			    if args.snv and mafs != {}:
 				fam.mp_freq = mafs[markername[m]]

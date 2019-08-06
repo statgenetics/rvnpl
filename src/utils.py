@@ -69,7 +69,7 @@ def randomsample(dic,n_jobs,rep):
     ibd_dist = [sorted(list(ibd_dist[0]),reverse=True),sorted(list(ibd_dist[1]),reverse=True)]
     return ibd_dist
 
-def load_data(fped,fdat,dirpath,args):
+def load_data(fped,fdat,dirpath,args,qtl_flag=False):
         pedfile = fped[0]
         markerfile = fdat[0]
         tmp_dir=os.path.dirname(dirpath)
@@ -80,7 +80,6 @@ def load_data(fped,fdat,dirpath,args):
             foldername=prefix_name
         chr_m = re.search(r'(chr\w+)',markerfile)
         chr_id = chr_m.group(1)                   #get the chromosome id
-        genename=os.path.basename(pdirname)#foldername.split('_gnomAD')[0]
         screen_output.log_out("folder name:{}, chromosome:{}".format(foldername,chr_id))
         #get the marker names
         markername = []
@@ -94,19 +93,23 @@ def load_data(fped,fdat,dirpath,args):
         #output original result
         if args.output is None:
             args.output = pdirname
-        result = file("{}/original_result.txt".format(args.output),'a')
-        rtext = '%s:\n'%genename
         #take in ped files
         f = file(pedfile,'r').read()
         lines = f.split('\n')
         lines.pop()
         family = {}
-        fam_class = {}
         fam_ids = []
         marker_n=0
         for line in lines:
             tmp=line.split()
-            tmp[4:] = [smart_int(i) for i in tmp[4:]]        #get every element from line
+            for idx in range(4,len(tmp)):
+                if idx==5 and qtl_flag:
+                    try:
+                        tmp[idx]=float('%.4f'%float(tmp[idx]))
+                    except:
+                        tmp[idx]=tmp[idx]
+                else:
+                    tmp[idx]=smart_int(tmp[idx])
             fid = tmp[0]                                   #family id
             if fid not in fam_ids:
                 fam_ids.append(fid)
@@ -114,7 +117,6 @@ def load_data(fped,fdat,dirpath,args):
             marker_n = int((len(tmp)-6)/2)
             #family=[[[fam1member1][fam1member2]...],[fam2member1][]...]
             family[fid].append(tmp[1:])
-        fam_num = len(family)
         #Extract marker freq info from cache
         mafs={}
         archive=ZipFile('{}/cache/{}.cache'.format(pdirname,prefix_name),'r')
@@ -163,3 +165,50 @@ def load_data(fped,fdat,dirpath,args):
             except:
                 pass
             return family, mafs, markername, fam_ids
+
+def ransample_qtl(i):
+    numerator=0
+    denominator=0
+    Q,t=0,0
+    if isinstance(null_nd_global[0],dict):
+        for fam_dist in null_nd_global:
+            r = random.uniform(0,1)
+            s = 0
+            for item,prob in fam_dist.iteritems():
+                s += prob
+                if s >= r:
+                    n,d=item
+                    break
+            numerator +=n
+            denominator +=d
+    else:
+        for fam_dist in null_nd_global:
+            n,d=fam_dist[random.choice(xrange(len(fam_dist)))]
+            numerator +=n
+            denominator +=d
+    try:
+        Q = numerator/denominator
+    except:
+        Q = 0
+    if denominator>0:
+        if Q>1:
+            t=denominator
+        elif Q>0:
+            t = Q**2*denominator
+    return t
+
+def init_child(data_):
+    global null_nd_global
+    null_nd_global = data_
+
+def randomsample_qtl(null,n_jobs,rep=20000):
+    screen_output.run_out('random sampling...')
+    cdist = []
+    ##multiple process####
+    p = Pool(processes=n_jobs, initializer=init_child, initargs=(null,))
+    result = p.imap(ransample_qtl,range(rep), chunksize=rep//args.n_jobs)
+    #result.wait()
+    p.close()
+    p.join()
+    cdist = [r for r in result]
+    return sorted(cdist)
