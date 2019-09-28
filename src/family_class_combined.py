@@ -107,9 +107,10 @@ class Family:
                 self.famstruct,self.detailstruct,self.parents,self.mates,self.offspring,self.sex={},{},{},{},{},{}
                 self.invnf,self.parentsid,self.affnf,self.affected,self.nonfounder,self.founder,self.missing_all,self.fallele=[],[],[],[],[],[],[],[]
                 self.invfounder,self.identical_sib=[],[]
+                self.missing_all=self.findall_miss()
                 for iid in self.fam_dict.keys():                      #for each fam member
-                    if self.fam_dict[iid]['trait']==2:
-                            #pick out all affected individuals
+                    if self.fam_dict[iid]['trait']==2 and iid not in self.missing_all:
+                            #pick out all affected and sequenced individuals
                             self.affected.append(iid)
                     if self.fam_dict[iid]['parents']!= ['0','0']:
                             self.nonfounder.append(iid)
@@ -119,7 +120,6 @@ class Family:
                     self.mates[iid]=self.fam_dict[iid]['mate']
                     self.offspring[iid]=self.fam_dict[iid]['offspring']
                     self.sex[iid]=self.fam_dict[iid]['sex']
-                self.missing_all=self.findall_miss()
                 #remove missing members that cannot be inferred
                 for tmp_p in self.fam_dict.keys():
                     if tmp_p in self.missing_all and self.fam_dict[tmp_p]['offspring']==[]:
