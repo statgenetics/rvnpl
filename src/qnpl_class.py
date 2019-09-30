@@ -364,6 +364,10 @@ class QNPL(NPL):
         null_ibd = manager.list([])
         all_ibd = manager.dict({})
         cond_null_ibd = manager.dict(self.cond_null_ibd)
+        if self.conditional_prob:
+            cond_key=self.conditional_prob['~combined'][0].items()[0]
+            if cond_key not in cond_null_ibd.keys():
+                cond_null_ibd[cond_key]=[self.expect_pair_ibd,self.prior]
         #print cond_null_ibd.keys()
         for i in xrange(rep):
             inqueue.put(i)
@@ -537,11 +541,11 @@ def null_generator(procID,founderid,fam,queue,all_ibd,cond_null_ibd,null_ibd,n_j
                     #print new_alleles
                     #print all_gt
                     if set(all_gt)==set([0,1]):
-                        n,d=0,0
+                        n,d=None,None
                     else:
                         n,d=fam.matrix_cal(new_alleles,conditional_prob)
                     all_ibd[allele_key]=(n,d)
-                    if (n,d)!=(0,0):
+                    if (n,d)!=(None,None):
                         null_ibd.append((n,d))
                     #print n,d
                 else:
@@ -549,7 +553,7 @@ def null_generator(procID,founderid,fam,queue,all_ibd,cond_null_ibd,null_ibd,n_j
                         time.sleep(.01)
                     else:
                         n,d=all_ibd[allele_key]
-                        if (n,d)!=(0,0):
+                        if (n,d)!=(None,None):
                             null_ibd.append((n,d))
         except Exception as e:
             screen_output.err_out("error in null_generator {}:{}".format(procID,e))
