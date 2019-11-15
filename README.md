@@ -41,7 +41,7 @@ The pedigree file (PED file) is a white-space (space or tab) delimited file with
 + Paternal ID: 0 if not available 
 + Maternal ID: 0 if not available 
 + Sex:  1=male, 2=female   
-+ Phenotype: 1=unaffected, 2=affected
++ Phenotype: 1=unaffected, 2=affected; numerical values (standardized) for quantitative traits
 
 An example pedigree file is given below:
 
@@ -135,6 +135,8 @@ Example commands are shown below:
 ```shell
 cd example
 rvnpl collapse --fam 100extend_01.ped --vcf A1BG/rep1.vcf.gz --output ./rep1 --freq EVSMAF -c 0.01 --rvhaplo --include_vars A1BG.txt 
+OR (for families with quantitative traits)
+rvnpl collapse --fam 100extend_quant.ped --vcf A1BG/rep1.vcf.gz --output ./rep1 --freq EVSMAF -c 0.01 --rvhaplo --include_vars A1BG.txt
 ```
 
 ### Options for npl analysis
@@ -173,6 +175,36 @@ rvnpl npl --path ./rep1 --output ./rep1 --exact --info_only --perfect --sall --r
 
 ```
 
+### Options for qnpl analysis (quantitative trait)
+
+```
+optional arguments:
+  -h, --help            show this help message and exit
+
+Input/Output options:
+  --path PATH           Path for input pedigree information.
+  --output PATH         Path for output files
+  --n_jobs N            number of multiprocess
+
+Options for calculating p-values:
+  --exact               get the exact distribution of Z-score and calculate p
+                        value from it
+  --pheno               shuffle phenotypes
+  --cut FLOAT, -c FLOAT
+                        threshold for adaptive permutations
+  --rep N               times of permutations
+  --fam_rep N           times of permutations for each family
+  --force               keep permutation times unchanged
+  --perfect_max N       maximum for inheritance vector iterations
+  --rvibd               calculate IBD for RV only
+```
+
+Example commands are shown below:
+
+```shell
+rvnpl qnpl --path ./rep1/ --output ./rep1/ --n_jobs 4 --exact --rvibd
+
+```
 The output is located in the given folder.
 
 # Questions
