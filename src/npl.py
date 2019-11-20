@@ -258,8 +258,8 @@ def execute(args):
 			idx_apv = tapv[1]
 			asymp_z_pair,asymp_z_all=z_scores[idx_apv]
 			rtext += 'marker: %s\n'%markername[idx_apv]
-			rtext += 'asymptotic p-value:'+repr(apv)+'\n'
-			rtext += 'Z-pair:{}\tZ-all:{}\n'.format(asymp_z_pair,asymp_z_all)
+			#rtext += 'asymptotic p-value:'+repr(apv)+'\n'
+			#rtext += 'Z-pair:{}\tZ-all:{}\n'.format(asymp_z_pair,asymp_z_all)
 			fam_num = len([x for x in fam_to_analyze[markername[idx_apv]] if x != None])
 			pr_s, pr_sall = None, None
 			print "marker:%s"%markername[idx_apv]
@@ -295,6 +295,8 @@ def execute(args):
 			    p_norm,pall_norm = apv[0],apv[1]
 			    z_sum_precise=0
 			    zall_sum_precise=0
+                            z_sum_origin=0
+                            zall_sum_origin=0
 			    increase_permutation=False
 			    if pr_s==1/(1+rep) or pr_sall==1/(1+rep):
 				#if empiric p-value reached limit, more permutation is needed
@@ -413,6 +415,7 @@ def execute(args):
                                                         fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag)
                                                         fam_npl.dist_s=fam_npl.distribution(pall_flag=pall_flag)
                                                         famstruct_null[str(famstruct.index(fam.famstruct))]=[fam_npl.dist_s,fam_npl.null_mean,fam_npl.null_std,fam_npl.null_ibd,fam_npl.sall_null_mean,fam_npl.sall_null_std]				
+                                    original_dist=[fam_npl.null_mean,fam_npl.null_std,fam_npl.sall_null_mean,fam_npl.sall_null_std]
 				    if args.rvibd:
 					pfamstruct=copy.copy(fam.famstruct)
 					pfamstruct.pop('info',None)
@@ -441,6 +444,10 @@ def execute(args):
 					else:
 					    zv_pair = 0
 					z_sum_precise+=float('%.9f'%zv_pair)
+                                        try:
+					    z_sum_origin+=float('%.9f'%((fam_npl.ibd_total-original_dist[0])/original_dist[1]))
+                                        except:
+                                            pass
 					if pall_flag:
 					    if fam_npl.sall_null_mean:
 						try:
@@ -450,6 +457,12 @@ def execute(args):
 					    else:
 						zv_all = 0
 					    zall_sum_precise+=float('%.9f'%zv_all)
+                                            try:
+                                                zall_sum_origin+=float('%.9f'%((fam_npl.ibd_sall-original_dist[2])/original_dist[3]))
+                                            except:
+                                                pass
+                                        else:
+                                            zall_sum_origin=z_sum_origin
 					for i in range(len(v)):
 					    ibd_pair, ibd_all = v[i]
 					    if fam_npl.null_mean:
@@ -476,6 +489,7 @@ def execute(args):
 					    tmp[(zv_pair,zv_all)] += d[i]                  #{z score: probability}
 					z_dist[idx_apv].append(tmp)
 		    ###################################################
+                            rtext += 'Z-pairs:{}\tZ-all:{}\n'.format(z_sum_origin/math.sqrt(fam_num),zall_sum_origin/math.sqrt(fam_num))
 			    if cz_dist == []:
 				if args.exact:              #random sample
                                     screen_output.run_out('randomly sampling..')
@@ -491,7 +505,7 @@ def execute(args):
 			    #NPL-pair score; weighted by sqrt of family number
 			    Z_pair = z_sum_precise/math.sqrt(fam_num)                  
 			    lod_pair = Z_pair**2/(2*math.log(10))
-			    rtext += 'S-pair:\n'
+			    rtext += 'S-pairs:\n'
 			    rtext += 'asymptotic p-value:'+repr(apv[0])+'\n'
 			    if args.exact:
 				rtext += 'empiric p-value:'+repr(pr_s)+'\n'
