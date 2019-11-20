@@ -190,7 +190,7 @@ def execute(args):
 				z_sall=0
 				try:
 				    z_sall=(fam_npl.ibd_sall-fam_npl.sall_null_mean)/fam_npl.sall_null_std
-				except ZeroDivisionError:
+                                except:
 				    z_sall=0
 				#print fam.ibd_sall,fam.sall_null_mean,fam.sall_null_std
 				if not fam.wt_fam:
