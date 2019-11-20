@@ -258,7 +258,7 @@ def execute(args):
 			idx_apv = tapv[1]
 			asymp_z_pair,asymp_z_all=z_scores[idx_apv]
 			rtext += 'marker: %s\n'%markername[idx_apv]
-			#rtext += 'asymptotic p-value:'+repr(apv)+'\n'
+			rtext += 'asymptotic p-value:'+repr(apv)+'\n'
 			#rtext += 'Z-pair:{}\tZ-all:{}\n'.format(asymp_z_pair,asymp_z_all)
 			fam_num = len([x for x in fam_to_analyze[markername[idx_apv]] if x != None])
 			pr_s, pr_sall = None, None
@@ -505,9 +505,8 @@ def execute(args):
 			    #NPL-pair score; weighted by sqrt of family number
 			    Z_pair = z_sum_precise/math.sqrt(fam_num)                  
 			    lod_pair = Z_pair**2/(2*math.log(10))
-			    rtext += 'S-pairs:\n'
-			    rtext += 'asymptotic p-value:'+repr(apv[0])+'\n'
-			    if args.exact:
+                            if args.exact:
+			        rtext += 'S-pairs:\n'
 				rtext += 'empiric p-value:'+repr(pr_s)+'\n'
 			    #############S-all#######################
                             if args.exact and None not in csall_dist:
@@ -520,13 +519,12 @@ def execute(args):
 					break
 			    else:
 				pr_sall = pr_s
-			    rtext += "S-all:\n"
 			    if zall_sum_precise:
 				Z_all = zall_sum_precise/math.sqrt(fam_num)
 				#pall_norm = stats.norm.sf(Z_all)
 			    if args.exact:
+                                rtext += "S-all:\n"
 				rtext += "empiric p-value:"+repr(pr_sall)+"\n"
-			    rtext += "asymptotic p-value:"+repr(apv[1])+"\n"
 			    ####################
 			pr_s_min = pr_s if pr_s<pr_s_min else pr_s_min
 			pr_sall_min = pr_sall if pr_sall<pr_sall_min else pr_sall_min
