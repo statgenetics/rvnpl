@@ -29,6 +29,7 @@ def checkParams(args):
             env.error("Cannot find file [{}]!".format(item), exit = True)
     if args.output:
         env.outdir = args.output
+        env.cache_dir = os.path.join(os.path.dirname(args.output), 'cache')
         env.output = os.path.split(args.output)[-1]
         env.tmp_log = os.path.join(env.tmp_dir, env.output + ".STDOUT")
     #
