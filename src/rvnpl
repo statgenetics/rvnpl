@@ -80,7 +80,6 @@ class Args:
 
     def getRuntimeArguments(self, parser):
         vargs = parser.add_argument_group('Runtime arguments')
-        #vargs.add_argument("-h", "--help", action="help", help="Show help message and exit.")
         vargs.add_argument('-j', '--jobs', metavar='N', type = int, default = 2,
                            help='''Number of CPUs to use.''')
         vargs.add_argument('--tempdir', metavar='PATH',
@@ -143,7 +142,8 @@ class Args:
 	vargs.add_argument('--path',metavar='PATH',required=True, help = "Path for input pedigree information.")
 	vargs.add_argument('--output',metavar='PATH',help = "Path for output files")
 	vargs.add_argument('--n_jobs',metavar='N',default=2,type=int,help = 'number of multiprocess')
-
+        vargs.add_argument("-v", "--verbose", metavar='N', type=int, default=1,
+                            help='''Runtime screen output. -1 is no output, 0 is minimum output, 1 is full output.''')
 
     def getQTLArguments(self,parser):
 	parser_qtl = self.subparsers.add_parser('qnpl',help='''Apply RV-QNPL methods for pedigrees''')

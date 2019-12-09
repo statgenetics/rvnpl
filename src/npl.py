@@ -25,7 +25,8 @@ from RVNPL import screen_output,utils,family_class_combined,npl_class
 
 #############################################
 def execute(args):
-	screen_output.log_out(args.path)
+        if args.verbose>=0:
+	    screen_output.log_out(args.path)
 	famstruct = []                      #family structures
 	famstruct_null = {}                 #famstruct_null={struct_id:[null_mean,null_std,null_ibd]}
 	famstruct_perfect = []
@@ -78,12 +79,14 @@ def execute(args):
 			fam_class[mkid]={}
 		    for m in markers_to_analyze:
 		        wt_fam_count=0
-			screen_output.run_out("analyzing "+repr(markername[m]))
+                        if args.verbose >=0:
+			    screen_output.run_out("analyzing "+repr(markername[m]))
 			if None in fam_to_analyze[markername[m]]:
 			    continue
 			for fid in fam_to_analyze[markername[m]]:
 			    #for each family, construct a class of Family
-			    print "fid:"+repr(fid)
+                            if args.verbose==1:
+			        print "fid:"+repr(fid)
 			    fam = family_class_combined.Family(m)
 			    fam.rvibd = args.rvibd
 			    if args.snv and mafs != {}:
@@ -94,7 +97,8 @@ def execute(args):
 			    fam.setdict(family[fid])                   #set family dictionary
 			    try:
 				if args.info_only and not fam.info:
-				    screen_output.run_out("uninformative family detected")
+                                    if args.verbose==1:
+				        screen_output.run_out("uninformative family detected")
 				    fam_to_analyze[markername[m]][fam_ids.index(fid)]=None
 				    fam.clean()
 				    continue
@@ -102,7 +106,8 @@ def execute(args):
 			    except:
 				fam.err=True
 			    if fam.err:
-				screen_output.err_out("Error detected in fam {} for marker {}".format(fid,markername[m]))
+                                if args.verbose==1:
+				    screen_output.err_out("Error detected in fam {} for marker {}".format(fid,markername[m]))
 				fam_to_analyze[markername[m]][fam_ids.index(fid)]=None
 				fam.clean()
 				continue
@@ -120,14 +125,14 @@ def execute(args):
                                         fam_combined_info=(fam.famstruct,None)
                                     if fam.missing_all!=[]:
                                         if fam_combined_info not in fam_conditional_prob_perfect:
-                                            fam_npl.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=args.sall)
+                                            fam_npl.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=args.sall,verbose=args.verbose)
                                             fam_conditional_prob_perfect.append(fam_combined_info)
                                             fam_conditional_prob_null_perfect[str(fam_conditional_prob_perfect.index(fam_combined_info))]=[fam_npl.dist_s,fam_npl.null_mean,fam_npl.null_std,fam_npl.sall_null_mean,fam_npl.sall_null_std]
                                         else:
                                             fam_npl.dist_s,fam_npl.null_mean,fam_npl.null_std,fam_npl.sall_null_mean,fam_npl.sall_null_std=fam_conditional_prob_null_perfect[str(fam_conditional_prob_perfect.index(fam_combined_info))]
                                     else:
                                         if fam.famstruct not in famstruct_perfect:
-                                            fam_npl.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=args.sall)
+                                            fam_npl.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=args.sall,verbose=args.verbose)
                                             famstruct_perfect.append(fam.famstruct)
                                             famstruct_null_perfect[str(famstruct_perfect.index(fam.famstruct))]=[fam_npl.dist_s,fam_npl.null_mean,fam_npl.null_std,fam_npl.sall_null_mean,fam_npl.sall_null_std]
                                         else:
@@ -136,7 +141,7 @@ def execute(args):
                                     pfamstruct=copy.copy(fam.famstruct)
                                     pfamstruct.pop('info',None)
                                     if pfamstruct not in famstruct_perfect:
-                                        fam_npl.null_perfect(n_jobs=args.n_jobs,perfect_max=args.perfect_max)
+                                        fam_npl.null_perfect(n_jobs=args.n_jobs,perfect_max=args.perfect_max,verbose=args.verbose)
                                         famstruct_perfect.append(pfamstruct)
                                         famstruct_null_perfect[str(famstruct_perfect.index(pfamstruct))]=[fam_npl.null_mean,fam_npl.null_std,fam_npl.null_ibd,fam_npl.sall_null_mean,fam_npl.sall_null_std]
                                     else:
@@ -146,14 +151,14 @@ def execute(args):
 				if fam.missing_all!=[] and not fam.wt_fam:
                                     fam_combined_info=(fam.famstruct,fam.conditional_prob['~combined'][0])
                                     if fam_combined_info not in fam_conditional_prob:
-                                        fam_npl.nullibd(rep=50,n_jobs=args.n_jobs,sall_flag=args.sall)
+                                        fam_npl.nullibd(rep=50,n_jobs=args.n_jobs,sall_flag=args.sall,verbose=args.verbose)
                                         fam_conditional_prob.append(fam_combined_info)
                                         fam_conditional_prob_null[str(fam_conditional_prob.index(fam_combined_info))]=[fam_npl.null_mean,fam_npl.null_std,fam_npl.null_ibd,fam_npl.sall_null_mean,fam_npl.sall_null_std]
                                     else:
                                         fam_npl.null_mean,fam_npl.null_std,fam_npl.null_ibd,fam_npl.sall_null_mean,fam_npl.sall_null_std=fam_conditional_prob_null[str(fam_conditional_prob.index(fam_combined_info))]
 				elif fam.info and not fam.wt_fam:   
 				    if fam.famstruct not in famstruct:
-                                        fam_npl.nullibd(rep=100,n_jobs=args.n_jobs,sall_flag=args.sall)
+                                        fam_npl.nullibd(rep=100,n_jobs=args.n_jobs,sall_flag=args.sall,verbose=args.verbose)
                                         famstruct.append(fam.famstruct)
                                         fam_npl.dist_s=fam_npl.distribution(pall_flag=args.sall)
                                         famstruct_null[str(famstruct.index(fam.famstruct))]=[fam_npl.dist_s,fam_npl.null_mean,fam_npl.null_std,fam_npl.null_ibd,fam_npl.sall_null_mean,fam_npl.sall_null_std]
@@ -174,7 +179,8 @@ def execute(args):
 				except:
 				    fam.err=True
 			    if fam.err:
-				screen_output.err_out("Error detected in fam {} for marker {}".format(fid,markername[m]))
+                                if args.verbose==1:
+				    screen_output.err_out("Error detected in fam {} for marker {}".format(fid,markername[m]))
 				fam_to_analyze[markername[m]][fam_ids.index(fid)]=None
 				fam.clean()
 				continue
@@ -182,8 +188,6 @@ def execute(args):
 			    if not fam.wt_fam:
 				z_sum[m] += z
 			    z_pair[m].append(z)
-			    #print fam.ibd_total
-			    #print "z:"+repr(z)
 			    observe[m] = float('%.9f'%(observe[m]+o))                     #combined value of IBD across family
                             if args.sall:
                             ###S-all statistic########
@@ -192,10 +196,8 @@ def execute(args):
 				    z_sall=(fam_npl.ibd_sall-fam_npl.sall_null_mean)/fam_npl.sall_null_std
                                 except:
 				    z_sall=0
-				#print fam.ibd_sall,fam.sall_null_mean,fam.sall_null_std
 				if not fam.wt_fam:
 				    zall_sum[m] += z_sall
-				#print "zall:"+repr(z_sall)
 				z_all[m].append(z_sall)
                                 ###############
                             if args.perfect:
@@ -215,27 +217,22 @@ def execute(args):
 			    continue
 			Z_pair = z_sum[m]/math.sqrt(fam_num)
 			p_norm = stats.norm.sf(Z_pair)    #asymptotic p-value
-			#print Z_pair,p_norm
 			asymp_pv[m] = (p_norm,p_norm)
 			z_scores[m] = (Z_pair,Z_pair)
 			if args.sall:
 			    #asymptotic p-value NPL-all
 			    Z_all = zall_sum[m]/math.sqrt(fam_num)
 			    pall_norm = stats.norm.sf(Z_all)
-			    #print Z_all,pall_norm
 			    asymp_pv[m] = (p_norm,pall_norm)
 			    z_scores[m] = (Z_pair,Z_all)
 			if args.kc and z_scores[m][0]>0 and z_scores[m][1]>0:
 			    ####Kong&Cox#####
 			    ##only tested for delta>0###
-			    #print fam_num
 			    coeff_pair=[]
 			    for tmp_z_pair in z_pair[m]:
 				coeff_pair.append(tmp_z_pair/math.sqrt(fam_num))
 			    min_b_pair=min(prior_b_pair[m])*math.sqrt(fam_num)
-			    #print "min_b_pair:"+repr(min_b_pair)
 			    Zpair_kc,p_pair_norm_kc=utils.K_C(coeff_pair,min_b_pair)	
-			    #print Zpair_kc,p_pair_norm_kc
 			    asymp_pv[m] = (p_pair_norm_kc,p_pair_norm_kc)
 			    z_scores[m] = (Zpair_kc,Zpair_kc)
 			    if args.sall:
@@ -243,9 +240,7 @@ def execute(args):
 				for tmp_z_all in z_all[m]:
 				    coeff_all.append(tmp_z_all/math.sqrt(fam_num))
 				min_b_all=min(prior_b_all[m])*math.sqrt(fam_num)
-				#print "min_b_all:"+repr(min_b_all)	
 				Zall_kc,p_all_norm_kc=utils.K_C(coeff_all,min_b_all)	
-				#print Zall_kc,p_all_norm_kc
 				asymp_pv[m] = (p_pair_norm_kc,p_all_norm_kc)
 				z_scores[m] = (Zpair_kc,Zall_kc)
 		    pr_s_min, pr_sall_min = 1, 1
@@ -262,8 +257,9 @@ def execute(args):
 			#rtext += 'Z-pair:{}\tZ-all:{}\n'.format(asymp_z_pair,asymp_z_all)
 			fam_num = len([x for x in fam_to_analyze[markername[idx_apv]] if x != None])
 			pr_s, pr_sall = None, None
-			print "marker:%s"%markername[idx_apv]
-			print apv
+                        if args.verbose>=0:
+			    print "marker:%s"%markername[idx_apv]
+			    print apv
 			rep=args.rep
 			fam_rep=args.fam_rep
 			fam_reps=[50, 100, 1000, args.fam_rep]
@@ -303,12 +299,9 @@ def execute(args):
 				if fam_rep==args.fam_rep:
 				    break	
 				increase_permutation=True
-				#print "increase permutation"
-				#print fam_rep,rep
 				idx=fam_reps.index(fam_rep)
 				fam_rep=fam_reps[idx+1]
 				rep=reps[idx+1]
-				#print fam_rep,rep
 			    pall_flag=True if fam_rep>1000 or args.sall else False
 			    infer_full_flag=1 if fam_rep>1000 else 2
 			    rtext+='permutations:{}\n'.format(rep)
@@ -327,13 +320,13 @@ def execute(args):
                                         fam_combined_info=(fam.famstruct,fam.conditional_prob['~combined'][0])
                                         if args.perfect and not args.rvibd:
                                             if fam_combined_info not in fam_conditional_prob:
-                                                fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag,simple=True)
+                                                fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag,simple=True,verbose=args.verbose)
                                                 fam_conditional_prob.append(fam_combined_info)
                                                 fam_conditional_prob_null[str(fam_conditional_prob.index(fam_combined_info))]=fam_npl.null_ibd
                                             else:
                                                 fam_npl.null_ibd=fam_conditional_prob_null[str(fam_conditional_prob.index(fam_combined_info))]
                                                 if pall_flag and fam_npl.null_ibd[-1][1]==0 or len(fam_npl.null_ibd)<fam_rep:
-                                                    fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag,simple=True)
+                                                    fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag,simple=True,verbose=args.verbose)
                                                     fam_conditional_prob_null[str(fam_conditional_prob.index(fam_combined_info))]=fam_npl.null_ibd
 					elif args.rvibd:
 					    if args.perfect:
@@ -341,78 +334,75 @@ def execute(args):
 						try:
 						    fam_npl.dist_s,fam_npl.null_mean,fam_npl.null_std,fam_npl.sall_null_mean,fam_npl.sall_null_std=fam_conditional_prob_null_perfect[str(fam_conditional_prob_perfect.index(fam_combined_info))]
 						except:
-                                            	    fam_npl.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag,infer_flag=infer_full_flag)
+                                            	    fam_npl.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag,infer_flag=infer_full_flag,verbose=args.verbose)
 						    fam_conditional_prob_perfect.append(fam_combined_info)
 						    fam_conditional_prob_null_perfect[str(fam_conditional_prob_perfect.index(fam_combined_info))]=[fam_npl.dist_s,fam_npl.null_mean,fam_npl.null_std,fam_npl.sall_null_mean,fam_npl.sall_null_std]
 						if pall_flag and fam_npl.sall_null_mean==0:
-                                            	    fam_npl.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag,infer_flag=infer_full_flag)
+                                            	    fam_npl.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag,infer_flag=infer_full_flag,verbose=args.verbose)
 						    fam_conditional_prob_null_perfect[str(fam_conditional_prob_perfect.index(fam_combined_info))]=[fam_npl.dist_s,fam_npl.null_mean,fam_npl.null_std,fam_npl.sall_null_mean,fam_npl.sall_null_std]
 					    elif fam_npl.null_std==0:
 						#unlikely to get different values through permutations
 						#this can only occur in rvibd when missing
 						fam_npl.null_ibd=[]
 						if fam_combined_info not in fam_conditional_prob_perfect:
-                                            	    fam_npl.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag,infer_flag=infer_full_flag)
+                                            	    fam_npl.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag,infer_flag=infer_full_flag,verbose=args.verbose)
 						    fam_conditional_prob_perfect.append(fam_combined_info)
 						    fam_conditional_prob_null_perfect[str(fam_conditional_prob_perfect.index(fam_combined_info))]=[fam_npl.dist_s,fam_npl.null_mean,fam_npl.null_std,fam_npl.sall_null_mean,fam_npl.sall_null_std]
 						else:
 						    fam_npl.dist_s,fam_npl.null_mean,fam_npl.null_std,fam_npl.sall_null_mean,fam_npl.sall_null_std=fam_conditional_prob_null_perfect[str(fam_conditional_prob_perfect.index(fam_combined_info))]
 						    if pall_flag and fam_npl.sall_null_mean==0:
-                                            	        fam_npl.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag,infer_flag=infer_full_flag)
+                                            	        fam_npl.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag,infer_flag=infer_full_flag,verbose=args.verbose)
 							fam_conditional_prob_null_perfect[str(fam_conditional_prob_perfect.index(fam_combined_info))]=[fam_npl.dist_s,fam_npl.null_mean,fam_npl.null_std,fam_npl.sall_null_mean,fam_npl.sall_null_std]
                                             else: #use permutations
 						fam_npl.dist_s=None
                                                 if fam_combined_info not in fam_conditional_prob:
-                                                    fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag)
+                                                    fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag,verbose=args.verbose)
                                                     fam_conditional_prob.append(fam_combined_info)
                                                     fam_conditional_prob_null[str(fam_conditional_prob.index(fam_combined_info))]=[fam_npl.null_mean,fam_npl.null_std,fam_npl.null_ibd,fam_npl.sall_null_mean,fam_npl.sall_null_std]
                                                 else:
                                                     fam_npl.null_mean,fam_npl.null_std,fam_npl.null_ibd,fam_npl.sall_null_mean,fam_npl.sall_null_std=fam_conditional_prob_null[str(fam_conditional_prob.index(fam_combined_info))]
                                                     if pall_flag and fam_npl.null_ibd[-1][1]==0 or len(fam_npl.null_ibd)<fam_rep:
-                                                        fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag)
+                                                        fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag,verbose=args.verbose)
                                                         fam_conditional_prob_null[str(fam_conditional_prob.index(fam_combined_info))]=[fam_npl.null_mean,fam_npl.null_std,fam_npl.null_ibd,fam_npl.sall_null_mean,fam_npl.sall_null_std]
                                         if fam_npl.null_ibd:
                                             add_time=0
                                             while max([x[0] for x in fam_npl.null_ibd])<fam_npl.ibd_total:
-                                                #print "add additional permutations"
                                                 if args.perfect and not args.rvibd:
-                                                    fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag,simple=True)
+                                                    fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag,simple=True,verbose=args.verbose)
                                                 else:
-                                                    fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag)
+                                                    fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag,verbose=args.verbose)
                                                 add_time+=1
                                                 if add_time > 10:
                                                     break
-                                            #print fam.ibd_total,sorted(fam.null_ibd)[-10:]
-                                            #print len(fam.null_ibd)
 				    elif fam.info:
 					if args.perfect and not args.rvibd:
 					    if fam.famstruct not in famstruct:
-						fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag,simple=True)
+						fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag,simple=True,verbose=args.verbose)
 						famstruct.append(fam.famstruct)
 						fam_npl.dist_s=fam_npl.distribution(pall_flag=pall_flag)
                                                 famstruct_null[str(famstruct.index(fam.famstruct))]=[fam_npl.dist_s,len(fam_npl.null_ibd)]
 					    else:
                                                 fam_npl.dist_s,fam_npl.null_ibd_len=famstruct_null[str(famstruct.index(fam.famstruct))]
                                                 if pall_flag and fam_npl.dist_s[1][0][1]==0 or fam_npl.null_ibd_len<fam_rep:
-                                                    fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag,simple=True)
+                                                    fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag,simple=True,verbose=args.verbose)
                                                     fam_npl.dist_s=fam_npl.distribution(pall_flag=pall_flag)
                                                     famstruct_null[str(famstruct.index(fam.famstruct))]=[fam_npl.dist_s,len(fam_npl.null_ibd)]
 					else:
                                             if args.perfect:
                                                 fam_npl.dist_s,fam_npl.null_mean,fam_npl.null_std,fam_npl.sall_null_mean,fam_npl.sall_null_std=famstruct_null_perfect[str(famstruct_perfect.index(fam.famstruct))]
 						if pall_flag and fam_npl.sall_null_mean==0:
-                                            	    fam_npl.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag,infer_flag=infer_full_flag)
+                                            	    fam_npl.null_perfect_rvibd(n_jobs=args.n_jobs,perfect_max=args.perfect_max,sall_flag=pall_flag,infer_flag=infer_full_flag,verbose=args.verbose)
 						    famstruct_null_perfect[str(famstruct_perfect.index(fam.famstruct))]=[fam_npl.dist_s,fam_npl.null_mean,fam_npl.null_std,fam_npl.sall_null_mean,fam_npl.sall_null_std] 
 					    else:
                                                 if fam.famstruct not in famstruct:
-                                                    fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag)
+                                                    fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag,verbose=args.verbose)
                                                     famstruct.append(fam.famstruct)
                                                     fam_npl.dist_s=fam_npl.distribution(pall_flag=pall_flag)
                                                     famstruct_null[str(famstruct.index(fam.famstruct))]=[fam_npl.dist_s,fam_npl.null_mean,fam_npl.null_std,fam_npl.null_ibd,fam_npl.sall_null_mean,fam_npl.sall_null_std]
                                                 else:
                                                     fam_npl.dist_s,fam_npl.null_mean,fam_npl.null_std,fam_npl.null_ibd,fam_npl.sall_null_mean,fam_npl.sall_null_std=famstruct_null[str(famstruct.index(fam.famstruct))]
                                                     if pall_flag and fam_npl.dist_s[1][0][1]==0 or len(fam_npl.null_ibd)<fam_rep:
-                                                        fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag)
+                                                        fam_npl.nullibd(rep=fam_rep,n_jobs=args.n_jobs,sall_flag=pall_flag,infer_flag=infer_full_flag,verbose=args.verbose)
                                                         fam_npl.dist_s=fam_npl.distribution(pall_flag=pall_flag)
                                                         famstruct_null[str(famstruct.index(fam.famstruct))]=[fam_npl.dist_s,fam_npl.null_mean,fam_npl.null_std,fam_npl.null_ibd,fam_npl.sall_null_mean,fam_npl.sall_null_std]				
                                     original_dist=[fam_npl.null_mean,fam_npl.null_std,fam_npl.sall_null_mean,fam_npl.sall_null_std]
@@ -420,7 +410,7 @@ def execute(args):
 					pfamstruct=copy.copy(fam.famstruct)
 					pfamstruct.pop('info',None)
 					if pfamstruct not in famstruct_perfect:
-                                            fam_npl.null_perfect(n_jobs=args.n_jobs,perfect_max=args.perfect_max,update_null=False)
+                                            fam_npl.null_perfect(n_jobs=args.n_jobs,perfect_max=args.perfect_max,update_null=False,verbose=args.verbose)
 					    famstruct_perfect.append(pfamstruct)
 					    famstruct_null_perfect[str(famstruct_perfect.index(pfamstruct))]=[fam_npl.null_mean,fam_npl.null_std,fam_npl.sall_null_mean,fam_npl.sall_null_std]
 					else:
@@ -432,10 +422,6 @@ def execute(args):
 				    tmp = {}
 				    if args.exact and cz_dist == []:
 					d,v = fam_npl.dist_s if fam_npl.dist_s else fam_npl.distribution(pall_flag=pall_flag)            #get the expected IBD distribution
-					#print fid
-					#print [d[v.index(tv)] for tv in sorted(v)],sorted(v)
-					#print sum([d[v.index(tv)] for tv in sorted(v,reverse=True) if tv[0]>=fam.ibd_total])
-					#print fam.ibd_total, fam.null_mean, fam.null_std
 					if fam_npl.null_mean:
 					    try:
 						zv_pair = (fam_npl.ibd_total-fam_npl.null_mean)/fam_npl.null_std
@@ -492,7 +478,8 @@ def execute(args):
                             rtext += 'Z-pairs:{}\tZ-all:{}\n'.format(z_sum_origin/math.sqrt(fam_num),zall_sum_origin/math.sqrt(fam_num))
 			    if cz_dist == []:
 				if args.exact:              #random sample
-                                    screen_output.run_out('randomly sampling..')
+                                    if args.verbose>=0:
+                                        screen_output.run_out('randomly sampling..')
                                     cz_dist,csall_dist=utils.randomsample(z_dist[idx_apv],args.n_jobs,rep)
 			    if args.exact:
 				z_sum_precise=float('%.9f'%z_sum_precise)

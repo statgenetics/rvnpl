@@ -356,9 +356,10 @@ class NPL:
                     std = math.sqrt(total/ibd_size)
                 return std
 
-        def nullibd(self,rep,n_jobs,sall_flag=False,infer_flag=2,simple=False):
+        def nullibd(self,rep,n_jobs,sall_flag=False,infer_flag=2,simple=False,verbose=1):
             #calculate expected mean and std for IBD under H0 
-            screen_output.run_out("calculating null distribution...")
+            if verbose==1:
+                screen_output.run_out("calculating null distribution...")
             #the number of nonfounders that should be included in inheritance vector
             founderid = self.family.founder
             ###parallel processing###
@@ -423,9 +424,10 @@ class NPL:
                     self.sall_null_mean = float('%.9f'%(sum(ibd_all)/len(ibd_all)))
                     self.sall_null_std = self.std(ibd_all,self.sall_null_mean)
 
-        def null_perfect(self,n_jobs,perfect_max,update_null=True):
+        def null_perfect(self,n_jobs,perfect_max,update_null=True,verbose=1):
         #null distribution of IBDs under perfect data
-            screen_output.run_out("calculating null distribution using perfect data approximation...")
+            if verbose==1:
+                screen_output.run_out("calculating null distribution using perfect data approximation...")
             p = Pool(processes=n_jobs)
             inv_list=[]
             rep=pow(2,2*len(self.family.invnf))
@@ -459,9 +461,10 @@ class NPL:
             self.sall_null_mean = float('%.9f'%(sum(ibd_all)/len(ibd_all)))
             self.sall_null_std = self.std(ibd_all,self.sall_null_mean,False)
 
-        def null_perfect_rvibd(self,n_jobs,perfect_max,sall_flag=False,infer_flag=2):
+        def null_perfect_rvibd(self,n_jobs,perfect_max,sall_flag=False,infer_flag=2,verbose=1):
         #null distribution of IBDs under perfect data
-            screen_output.run_out("calculating theoretical null distribution for rvibd...")
+            if verbose==1:
+                screen_output.run_out("calculating theoretical null distribution for rvibd...")
             rep=pow(2,2*len(self.family.nonfounder))
             #print rep
             #Get all possible parental genotype configurations
