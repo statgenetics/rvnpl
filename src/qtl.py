@@ -145,7 +145,6 @@ def execute(args):
                         asymp_pv[markername[m]]=p_asymp
                     p_emp_min=9
                     apv_min=min(asymp_pv.values())
-                    small_cutoff=1E-6
                     for ele in sorted(asymp_pv.items(), key=lambda x:x[1])[:3]:
                         apv=ele[1]
                         mname=ele[0]
@@ -168,7 +167,7 @@ def execute(args):
                                     fam_rep=fam_reps[2]
                                     rep=reps[2]
                             fam_count=len([x for x in fam_to_analyze[mname] if x is not None])
-                            if apv>=args.cut or apv<small_cutoff:
+                            if apv>=args.cut or apv<args.lower_cut:
                                 #Adaptive permutations
                                 #Use asymptotic p-values if the results are not pointwise significant
                                 p_emp=apv

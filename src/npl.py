@@ -245,8 +245,9 @@ def execute(args):
 				z_scores[m] = (Zpair_kc,Zall_kc)
 		    pr_s_min, pr_sall_min = 1, 1
 		    small_num=3
-		    if min([x for x in asymp_pv if x !=1])[0]>0.5:
-			small_num=1
+                    min_asymp_pv = min([x for x in asymp_pv if x !=1])[0]
+                    if min_asymp_pv>0.5 or min_asymp_pv<args.lower_cut:
+                        small_num=1
 		    for tapv in sorted([(x,idx_apv) for idx_apv,x in enumerate(asymp_pv) if x !=1])[:small_num]:
 			#take the 3 smallest asymptotic p-value to calculate empiric p-value
 			apv=tapv[0]
@@ -266,7 +267,7 @@ def execute(args):
                 	reps=[500, 5000, 50000, args.rep]
 			if fam_num==0:
 			    pr_s, pr_sall = 0.5, 0.5
-			if apv[0]>=args.cut and apv[1]>=args.cut:
+                        if apv[0]>=args.cut and apv[1]>=args.cut or apv[0]<args.lower_cut and apv[1]<args.lower_cut:
 			    #Adaptive permutations
 			    #Use asymptotic p-values if the results are not pointwise significant
 			    pr_s, pr_sall = apv[0],apv[1]
