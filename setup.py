@@ -17,9 +17,9 @@ setup(
 	version = VERSION,
       	description = "A novel approach to use sequence data for nonparametric linkage analysis",
       	author = "Linhai Zhao",
-      	packages = [NAME,'RVNPLcpp','SEQLinkage'],
+      	packages = [NAME,'RVNPLcpp'],
       	scripts = ['src/rvnpl'],
-      	package_dir = {NAME:'src','RVNPLcpp':'cppextend','SEQLinkage':'seqlink'},
+      	package_dir = {NAME:'src','RVNPLcpp':'cppextend'},
       	install_requires = ['scipy', 'numpy','sympy','prettyplotlib', 'tornado', 
 			    'brewer2mpl','faulthandler', 'matplotlib'],
       	ext_modules = [

@@ -1,6 +1,26 @@
 # RV-NPL manual
 
-## Installation
+## Using RV-NPL docker image (recommended)
+
+In order to run the docker image we provide for RV-NPL you should have [Docker installed](https://docs.docker.com/install/) on your machine.
+Then you can pull the docker image and set it as a commandline alias:
+
+``` shell
+docker pull statisticalgenetics/rvnpl
+alias rvnpl='docker run --rm --security-opt label:disable -t '\
+	'-P -h RV-NPL -w $PWD -v /tmp:/tmp -v $PWD:$PWD '\
+	'-u $UID:${GROUPS[0]} -e HOME=/seqlink -e USER=$USER statisticalgenetics/rvnpl rvnpl'
+```
+
+You should now be able to see program options using the following command:
+
+```shell
+rvnpl --help
+```
+
+You can optionally add the `alias rvnpl ...` line to your bash profile `~/.bashrc` or `~/.bash_profile` so you will have access to it next time you open a command terminal.
+
+## Installation from source
 
 ### Requirements
 
@@ -12,12 +32,20 @@
 
 + boost_python
 
-The RV-NPL package is free and available on github.  Run the following commands to download and install the RV-NPL.
+The RV-NPL package is free and available on github.  Run the following commands to download and install the SEQLinkage dependency:
+
+``` shell
+git clone https://github.com/gaow/SEQLinkage.git
+cd SEQLinkage
+python setup.py install
+```
+
+then RV-NPL,
 
 ``` shell
 git clone https://github.com/statgenetics/rvnpl.git
 cd rvnpl
-python setup.py install 
+python setup.py install
 ```
 
 If the program is installed correctly, you will see program options using the following command:
@@ -25,8 +53,6 @@ If the program is installed correctly, you will see program options using the fo
 ```shell
 rvnpl --help
 ```
-
-
 
 ## Input Format
 
@@ -36,11 +62,11 @@ rvnpl --help
 
 The pedigree file (PED file) is a white-space (space or tab) delimited file without header. The first six columns are mandatory:
 
-+ Family ID     
-+ Individual ID: must be unique within the family     
-+ Paternal ID: 0 if not available 
-+ Maternal ID: 0 if not available 
-+ Sex:  1=male, 2=female   
++ Family ID
++ Individual ID: must be unique within the family
++ Paternal ID: 0 if not available
++ Maternal ID: 0 if not available
++ Sex:  1=male, 2=female
 + Phenotype: 1=unaffected, 2=affected; numerical values (standardized) for quantitative traits
 
 An example pedigree file is given below:
@@ -134,7 +160,7 @@ Example commands are shown below:
 
 ```shell
 cd example
-rvnpl collapse --fam 100extend_01.ped --vcf A1BG/rep1.vcf.gz --output ./rep1 --freq EVSMAF -c 0.01 --rvhaplo --include_vars A1BG.txt 
+rvnpl collapse --fam 100extend_01.ped --vcf A1BG/rep1.vcf.gz --output ./rep1 --freq EVSMAF -c 0.01 --rvhaplo --include_vars A1BG.txt
 OR (for families with quantitative traits)
 rvnpl collapse --fam 100extend_quant.ped --vcf A1BG/rep1.vcf.gz --output ./rep1 --freq EVSMAF -c 0.01 --rvhaplo --include_vars A1BG.txt
 ```
@@ -209,4 +235,4 @@ The output is located in the given folder.
 
 # Questions
 
-If you have any further questions, please fell free to create a issue ticket in github. 
+If you have any further questions, please fell free to create a issue ticket in github.
