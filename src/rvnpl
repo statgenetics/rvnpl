@@ -109,7 +109,7 @@ class Args:
         vargs.add_argument('--run-linkage', action='store_true', dest = "run_linkage",
                            help=SUPPRESS)
         vargs.add_argument('--output-entries', metavar='N', type=int, dest = "output_limit", default = 10,
-                           help=SUPPRESS')
+                           help=SUPPRESS)
 
     def getNPLArguments(self,parser):
         parser_npl = self.subparsers.add_parser('npl',help='''Apply NPL methods for pedigrees''')
