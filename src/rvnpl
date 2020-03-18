@@ -105,7 +105,7 @@ class Args:
         vargs.add_argument('--theta-max', metavar='FLOAT', type=float, dest = "theta_max", default = 0.5,
                            help=SUPPRESS)
         vargs.add_argument('--theta-inc', metavar='FLOAT', type=float, dest = "theta_inc", default = 0.05,
-                           help=SUPPRESSTheta increment. Default to 0.05.')
+                           help=SUPPRESS)
         vargs.add_argument('--run-linkage', action='store_true', dest = "run_linkage",
                            help=SUPPRESS)
         vargs.add_argument('--output-entries', metavar='N', type=int, dest = "output_limit", default = 10,
