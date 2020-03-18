@@ -14,28 +14,28 @@ import os
 #################
 class Args:
     def __init__(self):
-	self.parser = ArgumentParser(
-	prog='rvnpl',
-	formatter_class=RawDescriptionHelpFormatter,
+        self.parser = ArgumentParser(
+        prog='rvnpl',
+        formatter_class=RawDescriptionHelpFormatter,
         description = '''\t{}, NPL scoring functions to detect over sharing in families with complex diseases using sequence data\n\t[{}]'''.\
         format(NAME, VERSION),
-	epilog = '''\tCopyright (c)''')
-	self.subparsers = self.parser.add_subparsers(title='subcommands')
-	self.getSEQLArguments(self.parser)
-	self.getNPLArguments(self.parser)
-	self.getQTLArguments(self.parser)
+        epilog = '''\tCopyright (c)''')
+        self.subparsers = self.parser.add_subparsers(title='subcommands')
+        self.getSEQLArguments(self.parser)
+        self.getNPLArguments(self.parser)
+        self.getQTLArguments(self.parser)
 
     def get(self):
-	return self.parser.parse_args()
+        return self.parser.parse_args()
 
 
     def getSEQLArguments(self, parser):
-	parser_seqlink=self.subparsers.add_parser('collapse', help='''Apply Collapsed Haplotype Pattern for pedigrees''')
-	self.getEncoderArguments(parser_seqlink)
+        parser_seqlink=self.subparsers.add_parser('collapse', help='''Apply Collapsed Haplotype Pattern for pedigrees''')
+        self.getEncoderArguments(parser_seqlink)
         self.getIOArguments(parser_seqlink)
-        #self.getLinkageArguments(parser_seqlink)
+        self.getLinkageArguments(parser_seqlink)
         self.getRuntimeArguments(parser_seqlink)
-	parser_seqlink.set_defaults(func=main)
+        parser_seqlink.set_defaults(func=main)
 
     def isalnum(self, string):
         if not os.path.basename(string).isalnum():
@@ -93,87 +93,86 @@ class Args:
     def getLinkageArguments(self, parser):
         vargs = parser.add_argument_group('LINKAGE options')
         vargs.add_argument('-K', '--prevalence', metavar='FLOAT', type=float,
-                           help='Disease prevalence.')
+                           help=SUPPRESS)
         vargs.add_argument('--moi', metavar='STRING', dest = "inherit_mode",
                            # choices=['AD', 'AR', 'Xlinked', 'Y'],
                            choices=['AD', 'AR'],
-                           help='Mode of inheritance, AD/AR: autosomal dominant/recessive.')
+                           help=SUPPRESS)
         vargs.add_argument('-W', '--wt-pen', metavar='FLOAT', type=float, dest = "wild_pen",
-                           help='Penetrance for wild type.')
+                           help=SUPPRESS)
         vargs.add_argument('-M', '--mut-pen', metavar='FLOAT', type=float, dest = "muta_pen",
-                           help='Penetrance for mutation.')
+                           help=SUPPRESS)
         vargs.add_argument('--theta-max', metavar='FLOAT', type=float, dest = "theta_max", default = 0.5,
-                           help='Theta upper bound. Default to 0.5.')
+                           help=SUPPRESS)
         vargs.add_argument('--theta-inc', metavar='FLOAT', type=float, dest = "theta_inc", default = 0.05,
-                           help='Theta increment. Default to 0.05.')
-        if ((platform.system() == 'Linux' or platform.system() == 'Darwin') and platform.architecture()[0] == '64bit'):
-            vargs.add_argument('--run-linkage', action='store_true', dest = "run_linkage",
-                           help='''Perform Linkage analysis using FASTLINK program.''')
-            vargs.add_argument('--output-entries', metavar='N', type=int, dest = "output_limit", default = 10,
-                           help='Write the highest N LOD/HLOD scores to output tables. Default to 10.')
+                           help=SUPPRESSTheta increment. Default to 0.05.')
+        vargs.add_argument('--run-linkage', action='store_true', dest = "run_linkage",
+                           help=SUPPRESS)
+        vargs.add_argument('--output-entries', metavar='N', type=int, dest = "output_limit", default = 10,
+                           help=SUPPRESS')
 
     def getNPLArguments(self,parser):
-	parser_npl = self.subparsers.add_parser('npl',help='''Apply NPL methods for pedigrees''')
+        parser_npl = self.subparsers.add_parser('npl',help='''Apply NPL methods for pedigrees''')
         self.NPLgetMarkerArguments(parser_npl)
         self.NPLgetIOArguments(parser_npl)
         self.NPLgetRuntimeArguments(parser_npl)
-	parser_npl.set_defaults(func=RVNPL.npl.execute)
+        parser_npl.set_defaults(func=RVNPL.npl.execute)
 
     def NPLgetMarkerArguments(self,parser):
-	vargs = parser.add_argument_group('Options for doing analysis on CHP markers(default) or SNV markers')
-	vargs.add_argument('--snv', action='store_true',help = 'Calculate on SNV markers')
+        vargs = parser.add_argument_group('Options for doing analysis on CHP markers(default) or SNV markers')
+        vargs.add_argument('--snv', action='store_true',help = 'Calculate on SNV markers')
 
     def NPLgetRuntimeArguments(self,parser):
-	vargs = parser.add_argument_group('Options for calculating p-values')
-	vargs.add_argument('--exact',action='store_true',help="get the exact distribution of Z-score and calculate p value from it")
-	vargs.add_argument('--cut','-c',metavar='FLOAT',default=0.05,type=float,help = 'threshold for adaptive permutations')
-	vargs.add_argument('--lower_cut',metavar='FLOAT',default=0,type=float,help = 'lower threshold for adaptive permutations')
-	vargs.add_argument('--rep',metavar='N',default=1000000,type=int,help = 'times of permutations')
-	vargs.add_argument('--fam_rep',metavar='N',default=50000,type=int,help = 'times of permutations for each family')
-	vargs.add_argument('--force',action='store_true',help = 'keep permutation times unchanged')
-	vargs.add_argument('--perfect_max',metavar='N',default=500000,type=int,help = 'maximum for inheritance vector iterations')
-	vargs.add_argument('--info_only',action='store_true',help="include only informative families")
-	vargs.add_argument('--perfect',action='store_true',help="use perfect data approximation in calculating Z-score")
-	vargs.add_argument('--kc',action='store_true',help="use Kong&Cox(1997) extension for analytical p-values")
-	vargs.add_argument('--sall',action='store_true',help="enable calculation of NPL-all")
-	vargs.add_argument('--rvibd',action='store_true',help="calculate IBD for RV only")
+        vargs = parser.add_argument_group('Options for calculating p-values')
+        vargs.add_argument('--exact',action='store_true',help="get the exact distribution of Z-score and calculate p value from it")
+        vargs.add_argument('--cut','-c',metavar='FLOAT',default=0.05,type=float,help = 'threshold for adaptive permutations')
+        vargs.add_argument('--lower_cut',metavar='FLOAT',default=0,type=float,help = 'lower threshold for adaptive permutations')
+        vargs.add_argument('--rep',metavar='N',default=1000000,type=int,help = 'times of permutations')
+        vargs.add_argument('--fam_rep',metavar='N',default=50000,type=int,help = 'times of permutations for each family')
+        vargs.add_argument('--force',action='store_true',help = 'keep permutation times unchanged')
+        vargs.add_argument('--perfect_max',metavar='N',default=500000,type=int,help = 'maximum for inheritance vector iterations')
+        vargs.add_argument('--info_only',action='store_true',help="include only informative families")
+        vargs.add_argument('--perfect',action='store_true',help="use perfect data approximation in calculating Z-score")
+        vargs.add_argument('--kc',action='store_true',help="use Kong&Cox(1997) extension for analytical p-values")
+        vargs.add_argument('--sall',action='store_true',help="enable calculation of NPL-all")
+        vargs.add_argument('--rvibd',action='store_true',help="calculate IBD for RV only")
 
     def NPLgetIOArguments(self,parser):
-	vargs = parser.add_argument_group('Input/Output options')
-	vargs.add_argument('--path',metavar='PATH',required=True, help = "Path for input pedigree information.")
-	vargs.add_argument('--output',metavar='PATH',help = "Path for output files")
-	vargs.add_argument('--n_jobs',metavar='N',default=2,type=int,help = 'number of multiprocess')
+        vargs = parser.add_argument_group('Input/Output options')
+        vargs.add_argument('--path',metavar='PATH',required=True, help = "Path for input pedigree information.")
+        vargs.add_argument('--output',metavar='PATH',help = "Path for output files")
+        vargs.add_argument('--n_jobs',metavar='N',default=2,type=int,help = 'number of multiprocess')
         vargs.add_argument("-v", "--verbose", metavar='N', type=int, default=1,
                             help='''Runtime screen output. -1 is no output, 0 is minimum output, 1 is full output.''')
 
     def getQTLArguments(self,parser):
-	parser_qtl = self.subparsers.add_parser('qnpl',help='''Apply RV-QNPL methods for pedigrees''')
+        parser_qtl = self.subparsers.add_parser('qnpl',help='''Apply RV-QNPL methods for pedigrees''')
         self.QTLgetMarkerArguments(parser_qtl)
         self.QTLgetIOArguments(parser_qtl)
         self.QTLgetRuntimeArguments(parser_qtl)
-	parser_qtl.set_defaults(func=RVNPL.qtl.execute)
+        parser_qtl.set_defaults(func=RVNPL.qtl.execute)
 
     def QTLgetMarkerArguments(self,parser):
-	vargs = parser.add_argument_group('Options for doing analysis on CHP markers(default) or SNV markers')
-	vargs.add_argument('--snv', action='store_true',help = 'Calculate on SNV markers')
+        vargs = parser.add_argument_group('Options for doing analysis on CHP markers(default) or SNV markers')
+        vargs.add_argument('--snv', action='store_true',help = 'Calculate on SNV markers')
 
     def QTLgetRuntimeArguments(self,parser):
-	vargs = parser.add_argument_group('Options for calculating p-values')
-	vargs.add_argument('--exact',action='store_true',help="get the exact distribution of Z-score and calculate p value from it")
+        vargs = parser.add_argument_group('Options for calculating p-values')
+        vargs.add_argument('--exact',action='store_true',help="get the exact distribution of Z-score and calculate p value from it")
         vargs.add_argument('--pheno',action='store_true',help="shuffle phenotypes")
         vargs.add_argument('--cut','-c',metavar='FLOAT',default=0.05,type=float,help = 'threshold for adaptive permutations')
-	vargs.add_argument('--lower_cut',metavar='FLOAT',default=0,type=float,help = 'lower threshold for adaptive permutations')
-	vargs.add_argument('--rep',metavar='N',default=1000000,type=int,help = 'times of permutations')
-	vargs.add_argument('--fam_rep',metavar='N',default=50000,type=int,help = 'times of permutations for each family')
-	vargs.add_argument('--force',action='store_true',help = 'keep permutation times unchanged')
-	vargs.add_argument('--perfect_max',metavar='N',default=500000,type=int,help = 'maximum for inheritance vector iterations')
-	vargs.add_argument('--rvibd',action='store_true',help="calculate IBD for RV only")
+        vargs.add_argument('--lower_cut',metavar='FLOAT',default=0,type=float,help = 'lower threshold for adaptive permutations')
+        vargs.add_argument('--rep',metavar='N',default=1000000,type=int,help = 'times of permutations')
+        vargs.add_argument('--fam_rep',metavar='N',default=50000,type=int,help = 'times of permutations for each family')
+        vargs.add_argument('--force',action='store_true',help = 'keep permutation times unchanged')
+        vargs.add_argument('--perfect_max',metavar='N',default=500000,type=int,help = 'maximum for inheritance vector iterations')
+        vargs.add_argument('--rvibd',action='store_true',help="calculate IBD for RV only")
 
     def QTLgetIOArguments(self,parser):
-	vargs = parser.add_argument_group('Input/Output options')
-	vargs.add_argument('--path',metavar='PATH',required=True, help = "Path for input pedigree information.")
-	vargs.add_argument('--output',metavar='PATH',help = "Path for output files")
-	vargs.add_argument('--n_jobs',metavar='N',default=2,type=int,help = 'number of multiprocess')
+        vargs = parser.add_argument_group('Input/Output options')
+        vargs.add_argument('--path',metavar='PATH',required=True, help = "Path for input pedigree information.")
+        vargs.add_argument('--output',metavar='PATH',help = "Path for output files")
+        vargs.add_argument('--n_jobs',metavar='N',default=2,type=int,help = 'number of multiprocess')
 
 if __name__ == '__main__':
     try:
