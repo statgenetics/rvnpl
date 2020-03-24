@@ -289,7 +289,7 @@ class Family:
                     elif len(nf_parent)==1:
                         local_id=nf_parent[0]
                     else:
-                        raise TypeError
+                        raise ValueError('Family inbred found in {}'.format(iid))
                         break
                 if gen==0:
                     mate=self.fam_dict[local_id]['mate'][0]
