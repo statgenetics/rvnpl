@@ -47,6 +47,7 @@ class Family:
                 self.mp_freq = []
                 self.conditional_prob = {}
                 self.err = False
+		self.err_log = ''
                 self.rvibd = False
         def setdict(self,family):
                 self.fam=family
@@ -76,8 +77,11 @@ class Family:
                             self.fam_dict[iid]['gt']=tmp['gt']
                         else:
                             self.fam_dict[iid]=tmp
-                #print self.fam_dict
-                self.set_famstruct()
+		try:
+                    self.set_famstruct()
+		except:
+		    self.err=True
+		    self.err_log+='family structure;'
         def core_struct(self,nf):
                 #get fam affected structure
                 total_branch=['%d'%(nf in self.affected)]
@@ -348,13 +352,17 @@ class Family:
                             rm_flag=True
                     try:
                         if self.conditional_prob['~combined'][0]=={}:
-                            screen_output.err_out('conditional_prob is NULL')
                             self.err=True
+			    self.err_log+='conditional_prob is NULL;'
                     except KeyError:
-                        screen_output.err_out('conditional_prob no key')
                         self.err = True
+			self.err_log+='conditional_prob no key;'
                 if rm_flag:
-                    self.set_famstruct()
+		    try:
+                        self.set_famstruct()
+		    except:
+			self.err = True
+			self.err_log+='family structure;'
                 self.offspring_pairs=[]
                 for idx,aid in enumerate(self.affected):
                     for bid in self.affected[idx+1:]:
@@ -373,8 +381,8 @@ class Family:
                                     continue
                             self.affected_pairs.append([aid,bid])
                 if len(self.affected_pairs)==0:
-                    screen_output.err_out('no affected relatives pairs')
                     self.err = True
+		    self.err_log+='no affected relative pairs;'
 
         def remove(self,iid):
                 #remove useless individuals
@@ -812,7 +820,8 @@ class QFamily(Family):
                 self.pairs.append(sorted([aid,bid]))
         paircount = len(self.pairs)
         if paircount==0:
-            self.err=1
+            self.err=True
+	    self.err_log+='No relative pairs;'
         #print self.all_members
         #print self.pairs
         self.expect_pair_ibd=[0 for x in range(paircount)]
@@ -936,7 +945,11 @@ class QFamily(Family):
                 screen_output.err_out('conditional_prob no key')
                 self.err = True
         if rm_flag:
-            self.set_famstruct()
+	    try:
+                self.set_famstruct()
+	    except:
+		self.err = True
+		self.err_log+='Family structure;'
 
     def corre(self,pair,ibdall=[]):
         #return the correlation of traits between relative pairs

@@ -107,7 +107,7 @@ def execute(args):
 				fam.err=True
 			    if fam.err:
                                 if args.verbose==1:
-				    screen_output.err_out("Error detected in fam {} for marker {}".format(fid,markername[m]))
+				    screen_output.err_out("Family {} ignored for marker {} due to {}".format(fid,markername[m],fam.err_log))
 				fam_to_analyze[markername[m]][fam_ids.index(fid)]=None
 				fam.clean()
 				continue
@@ -178,15 +178,20 @@ def execute(args):
 				    fam_npl.ibd_total,fam_npl.ibd_sall=fam_npl.cal_ibd(sall_flag=args.sall)
 				except:
 				    fam.err=True
+				    fam.err_log+='IBD calculation error;'
+			    if np.isnan(fam_npl.ibd_total) or fam_npl.null_std==0:
+				fam.err=True
+				fam.err_log+='Uninformative IBD;'
 			    if fam.err:
                                 if args.verbose==1:
-				    screen_output.err_out("Error detected in fam {} for marker {}".format(fid,markername[m]))
+				    screen_output.err_out("Family {} is ignored for marker {} due to {}".format(fid,markername[m],fam.err_log))
 				fam_to_analyze[markername[m]][fam_ids.index(fid)]=None
 				fam.clean()
 				continue
 			    z,o = fam_npl.stat()                             #get Z-score and observed IBD among affected individuals for each family 
 			    if not fam.wt_fam:
 				z_sum[m] += z
+			    print z,o,z_sum[m]
 			    z_pair[m].append(z)
 			    observe[m] = float('%.9f'%(observe[m]+o))                     #combined value of IBD across family
                             if args.sall:
@@ -200,10 +205,10 @@ def execute(args):
 				    zall_sum[m] += z_sall
 				z_all[m].append(z_sall)
                                 ###############
-                            if args.perfect:
+                            if args.perfect and not args.rvibd:
                                 if args.kc:
                                     b_pair=fam_npl.null_std/(fam_npl.null_mean-min([x[0] for x in fam_npl.null_ibd]))
-                                    prior_b_pair[m].append(b_pair)
+				    prior_b_pair[m].append(b_pair)
                                     if args.sall:
                                         min_sall=min([x[1] for x in fam_npl.null_ibd])
                                         b_all=fam_npl.sall_null_std/(fam_npl.sall_null_mean-min_sall)
