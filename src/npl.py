@@ -191,7 +191,6 @@ def execute(args):
 			    z,o = fam_npl.stat()                             #get Z-score and observed IBD among affected individuals for each family 
 			    if not fam.wt_fam:
 				z_sum[m] += z
-			    print z,o,z_sum[m]
 			    z_pair[m].append(z)
 			    observe[m] = float('%.9f'%(observe[m]+o))                     #combined value of IBD across family
                             if args.sall:
@@ -208,7 +207,7 @@ def execute(args):
                             if args.perfect and not args.rvibd:
                                 if args.kc:
                                     b_pair=fam_npl.null_std/(fam_npl.null_mean-min([x[0] for x in fam_npl.null_ibd]))
-				    prior_b_pair[m].append(b_pair)
+			            prior_b_pair[m].append(b_pair)
                                     if args.sall:
                                         min_sall=min([x[1] for x in fam_npl.null_ibd])
                                         b_all=fam_npl.sall_null_std/(fam_npl.sall_null_mean-min_sall)
