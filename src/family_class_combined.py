@@ -341,7 +341,6 @@ class Family:
                 self.sorted_miss_persons=sorted(miss_persons,key=lambda x: (self.generation(x[0]),x[1]))
                 if self.sorted_miss_persons != []:
                     self.GT_infer()
-                #print self.conditional_prob
                 #remove useless individuals
                 rm_flag=False
                 rm_genotyped_person=False
