@@ -233,6 +233,11 @@ rvnpl qnpl --path ./rep1/ --output ./rep1/ --n_jobs 4 --exact --rvibd
 ```
 The output is located in the given folder.
 
+## RV-NPL manuscript
+
+Analysis of Zhao et al 2019 AJHG are outlined [here](https://statgenetics.github.io/rvnpl-notes/index.html). 
+These notes demonstrates how to use `rvnpl` for sequence data analysis.
+
 # Questions
 
 If you have any further questions, please fell free to create a issue ticket in github.
